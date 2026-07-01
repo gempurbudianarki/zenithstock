@@ -215,16 +215,42 @@ Inventaris Barang
      style="display:none;">
     <div class="zs-panel w-full max-w-md p-6 relative border border-white/10" @click.away="window.dispatchEvent(new Event('close-scanner'))">
         <button type="button" @click="window.dispatchEvent(new Event('close-scanner'))" 
-                style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--color-text-muted);cursor:pointer;font-size:1.1rem;">
+                style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--color-text-muted);cursor:pointer;font-size:1.1rem;z-index:20;">
             ✕
         </button>
         <h3 style="font-size:1rem;font-weight:800;color:var(--color-text-primary);margin:0 0 6px;">Pindai Barcode / QR Code</h3>
         <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 20px;">Arahkan kamera ponsel atau webcam Anda ke barcode stiker produk secara pas.</p>
         
         <!-- Camera Viewport -->
-        <div id="reader" style="width: 100%; min-height: 250px; background: #020817; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position:relative;"></div>
+        <div id="reader" style="width: 100%; min-height: 250px; background: #020817; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position:relative;">
+            <!-- Success Overlay Flash -->
+            <div id="scan-success-overlay" style="position:absolute;inset:0;background:rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.15s ease;z-index:10;">
+                <div style="background:rgba(2,8,23,0.9);border:1px solid rgba(34,211,238,0.3);border-radius:99px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:var(--zs-cyan-400);box-shadow:0 0 20px rgba(34,211,238,0.3);">
+                    <svg style="width:28px;height:28px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Inside Modal (Camera Selector, Torch Toggle) -->
+        <div style="margin-top:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;width:100%;flex-wrap:wrap;">
+            <!-- Dropdown Selector (hidden if 1 camera) -->
+            <div id="camera-select-wrap" class="select-wrapper" style="display:none;flex:1;max-width:200px;">
+                <select id="camera-select" class="form-control" style="padding:6px 12px;font-size:0.75rem;height:32px;" onchange="switchCamera(this.value)">
+                </select>
+            </div>
+            
+            <!-- Torch button (hidden if not supported by hardware) -->
+            <button type="button" id="torch-btn" onclick="toggleTorch()" class="btn btn-secondary btn-sm" style="display:none;padding:6px 12px;height:32px;font-size:0.75rem;gap:6px;align-items:center;cursor:pointer;">
+                <svg style="width:14px;height:14px;color:#fbbf24;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Nyalakan Senter
+            </button>
+        </div>
         
-        <div style="margin-top:20px;display:flex;justify-content:flex-end;">
+        <div style="margin-top:20px;display:flex;justify-content:flex-end;border-top:1px solid rgba(255,255,255,0.05);padding-top:16px;">
             <button type="button" @click="window.dispatchEvent(new Event('close-scanner'))" class="btn btn-secondary btn-sm">Tutup Kamera</button>
         </div>
     </div>
@@ -234,69 +260,212 @@ Inventaris Barang
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
     let html5QrCode;
+    let currentCameraId = null;
+    let isTorchOn = false;
+    let availableCameras = [];
     
     function startScanner() {
-        // Clear old reader if any
         stopScanner();
+        isTorchOn = false;
+        
+        // Hide torch button initially
+        const torchBtn = document.getElementById("torch-btn");
+        if (torchBtn) {
+            torchBtn.style.display = "none";
+            torchBtn.style.background = "rgba(255,255,255,0.02)";
+            torchBtn.style.color = "var(--color-text-secondary)";
+            torchBtn.style.borderColor = "rgba(255,255,255,0.08)";
+        }
+        
+        // Reset overlay
+        const overlay = document.getElementById("scan-success-overlay");
+        if (overlay) overlay.style.opacity = "0";
         
         setTimeout(() => {
             const readerDiv = document.getElementById("reader");
             if (!readerDiv) return;
             
             html5QrCode = new Html5Qrcode("reader");
-            const config = { 
-                fps: 15, 
-                qrbox: function(width, height) {
-                    // Responsive scanner box size
-                    return { width: Math.min(width * 0.75, 250), height: Math.min(height * 0.5, 130) };
-                }
-            };
             
-            html5QrCode.start(
-                { facingMode: "environment" }, 
-                config,
-                (decodedText, decodedResult) => {
-                    // Success callback
-                    playBeep();
-                    
-                    // Set search input
-                    const searchInput = document.getElementById("inventory-search");
-                    if (searchInput) {
-                        searchInput.value = decodedText;
-                        
-                        // Update Alpine searchQ
-                        const rootEl = document.getElementById("dashboard-root");
-                        if (rootEl) {
-                            const alpineData = Alpine.$data(rootEl);
-                            if (alpineData) {
-                                alpineData.searchQ = decodedText;
-                            }
-                        }
-                        
-                        // Dispatch keyup event to trigger HTMX query search
-                        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        searchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+            // Query for available cameras
+            Html5Qrcode.getCameras().then(cameras => {
+                availableCameras = cameras;
+                const selectWrap = document.getElementById("camera-select-wrap");
+                const select = document.getElementById("camera-select");
+                
+                if (cameras && cameras.length > 0) {
+                    if (cameras.length > 1 && selectWrap && select) {
+                        selectWrap.style.display = "block";
+                        select.innerHTML = "";
+                        cameras.forEach((cam, idx) => {
+                            const opt = document.createElement("option");
+                            opt.value = cam.id;
+                            opt.text = cam.label || `Kamera ${idx + 1}`;
+                            select.appendChild(opt);
+                        });
+                        // Set rear camera as default (usually the last index)
+                        currentCameraId = cameras[cameras.length - 1].id;
+                        select.value = currentCameraId;
+                    } else {
+                        if (selectWrap) selectWrap.style.display = "none";
+                        currentCameraId = cameras[0].id;
                     }
                     
-                    // Close scanner
-                    window.dispatchEvent(new Event('close-scanner'));
-                },
-                (errorMessage) => {
-                    // Scanning... ignore errors
+                    launchCamera(currentCameraId);
+                } else {
+                    throw new Error("No cameras detected");
                 }
-            ).catch(err => {
-                console.error("Camera start error: ", err);
-                const readerDiv = document.getElementById("reader");
-                if (readerDiv) {
-                    readerDiv.innerHTML = `<div style="padding:40px 16px;text-align:center;color:var(--color-danger);font-size:0.8rem;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:center;">
-                        <svg style="width:24px;height:24px;color:#f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                        Gagal mengakses kamera.<br><span style="color:var(--color-text-muted);font-size:0.75rem;margin-top:4px;">Pastikan izin kamera diaktifkan dan menggunakan koneksi HTTPS / Localhost.</span>
-                    </div>`;
-                }
+            }).catch(err => {
+                console.error("Camera list error: ", err);
+                showCameraError();
             });
+            
         }, 300);
+    }
+    
+    function launchCamera(cameraId) {
+        if (!html5QrCode) return;
+        
+        const config = { 
+            fps: 15, 
+            qrbox: function(width, height) {
+                const size = Math.min(width * 0.75, height * 0.75, 250);
+                return { width: size, height: size };
+            }
+        };
+        
+        html5QrCode.start(
+            cameraId, 
+            config,
+            (decodedText, decodedResult) => {
+                // Success callback
+                showSuccessOverlay();
+                playBeep();
+                
+                // Set search input value
+                const searchInput = document.getElementById("inventory-search");
+                if (searchInput) {
+                    searchInput.value = decodedText;
+                    
+                    // Update Alpine searchQ
+                    const rootEl = document.getElementById("dashboard-root");
+                    if (rootEl) {
+                        const alpineData = Alpine.$data(rootEl);
+                        if (alpineData) {
+                            alpineData.searchQ = decodedText;
+                        }
+                    }
+                    
+                    // Dispatch keyup event to trigger HTMX query search
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    searchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+                    
+                    // Call HTMX trigger directly for reliability
+                    if (typeof htmx !== 'undefined') {
+                        htmx.trigger(searchInput, 'keyup');
+                    }
+                }
+                
+                // Wait for success visual animation then close camera modal
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('close-scanner'));
+                }, 400);
+            },
+            (errorMessage) => {
+                // Scanning... ignore errors
+            }
+        ).then(() => {
+            // Check torch compatibility
+            setTimeout(() => {
+                try {
+                    const capabilities = html5QrCode.getRunningTrackCapabilities();
+                    const torchBtn = document.getElementById("torch-btn");
+                    if (capabilities && capabilities.torch && torchBtn) {
+                        torchBtn.style.display = "inline-flex";
+                    }
+                } catch(e) {
+                    console.log("Torch capabilities check unsupported", e);
+                }
+            }, 600);
+        }).catch(err => {
+            console.error("Camera start error: ", err);
+            showCameraError();
+        });
+    }
+    
+    function switchCamera(cameraId) {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                currentCameraId = cameraId;
+                isTorchOn = false;
+                const torchBtn = document.getElementById("torch-btn");
+                if (torchBtn) {
+                    torchBtn.style.display = "none";
+                    torchBtn.innerHTML = `
+                        <svg style="width:14px;height:14px;color:#fbbf24;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Nyalakan Senter`;
+                }
+                launchCamera(cameraId);
+            }).catch(err => {
+                console.error("Switch camera stop error: ", err);
+            });
+        }
+    }
+    
+    function toggleTorch() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            isTorchOn = !isTorchOn;
+            html5QrCode.applyVideoConstraints({
+                advanced: [{ torch: isTorchOn }]
+            }).then(() => {
+                const torchBtn = document.getElementById("torch-btn");
+                if (torchBtn) {
+                    if (isTorchOn) {
+                        torchBtn.style.background = "#fbbf24";
+                        torchBtn.style.color = "#020817";
+                        torchBtn.style.borderColor = "#fbbf24";
+                        torchBtn.innerHTML = `
+                            <svg style="width:14px;height:14px;color:#020817;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Matikan Senter`;
+                    } else {
+                        torchBtn.style.background = "rgba(255,255,255,0.02)";
+                        torchBtn.style.color = "var(--color-text-secondary)";
+                        torchBtn.style.borderColor = "rgba(255,255,255,0.08)";
+                        torchBtn.innerHTML = `
+                            <svg style="width:14px;height:14px;color:#fbbf24;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Nyalakan Senter`;
+                    }
+                }
+            }).catch(err => {
+                console.error("Apply torch error: ", err);
+                isTorchOn = !isTorchOn; // rollback state
+            });
+        }
+    }
+    
+    function showSuccessOverlay() {
+        const overlay = document.getElementById("scan-success-overlay");
+        if (overlay) {
+            overlay.style.opacity = "1";
+        }
+    }
+    
+    function showCameraError() {
+        const readerDiv = document.getElementById("reader");
+        if (readerDiv) {
+            readerDiv.innerHTML = `<div style="padding:40px 16px;text-align:center;color:var(--color-danger);font-size:0.8rem;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:center;">
+                <svg style="width:24px;height:24px;color:#f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Gagal mengakses kamera.<br><span style="color:var(--color-text-muted);font-size:0.75rem;margin-top:4px;">Pastikan izin kamera diaktifkan dan menggunakan koneksi HTTPS / Localhost.</span>
+            </div>`;
+        }
     }
     
     function stopScanner() {

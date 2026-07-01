@@ -11,15 +11,13 @@ audit_bp = Blueprint('audit', __name__, url_prefix='/audit')
 @audit_bp.route('/')
 @login_required
 def index():
-    """Halaman Audit Trail – log semua pergerakan stok dengan filter lengkap"""
-    # ── Filters ──────────────────────────────────────────
-    q          = request.args.get('q', '').strip()
-    tipe_f     = request.args.get('type', '').strip()
-    user_f     = request.args.get('user_id', '').strip()
-    date_from  = request.args.get('date_from', '').strip()
-    date_to    = request.args.get('date_to', '').strip()
-    page       = request.args.get('page', 1, type=int)
-    per_page   = 30
+    q = request.args.get('q', '').strip()
+    tipe_f = request.args.get('type', '').strip()
+    user_f = request.args.get('user_id', '').strip()
+    date_from = request.args.get('date_from', '').strip()
+    date_to = request.args.get('date_to', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 30
 
     query = StockMovement.query.join(Product)
 
@@ -49,26 +47,29 @@ def index():
         except ValueError:
             pass
 
-    # Paginate
-    pagination  = query.order_by(StockMovement.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
-    movements   = pagination.items
+    pagination = query.order_by(StockMovement.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    movements = pagination.items
 
-    # ── Summary Stats ─────────────────────────────────────
-    all_movements  = StockMovement.query.all()
-    total_masuk    = sum(m.jumlah for m in all_movements if m.tipe == 'MASUK')
-    total_keluar   = sum(abs(m.jumlah) for m in all_movements if m.tipe == 'KELUAR')
-    total_log      = len(all_movements)
+    all_movements = StockMovement.query.all()
+    total_masuk = sum(m.jumlah for m in all_movements if m.tipe == 'MASUK')
+    total_keluar = sum(abs(m.jumlah) for m in all_movements if m.tipe == 'KELUAR')
+    total_log = len(all_movements)
 
-    # ── Users list for filter dropdown ────────────────────
     users = User.query.order_by(User.username).all()
 
-    # ── HTMX partial response ─────────────────────────────
     if request.headers.get('HX-Request'):
         return render_template(
             'audit/_table.html',
-            movements=movements, pagination=pagination,
-            page=page, q=q, tipe_f=tipe_f, user_f=user_f,
-            date_from=date_from, date_to=date_to
+            movements=movements,
+            pagination=pagination,
+            page=page,
+            q=q,
+            tipe_f=tipe_f,
+            user_f=user_f,
+            date_from=date_from,
+            date_to=date_to
         )
 
     return render_template(
@@ -79,6 +80,10 @@ def index():
         total_keluar=total_keluar,
         total_log=total_log,
         users=users,
-        page=page, q=q, tipe_f=tipe_f, user_f=user_f,
-        date_from=date_from, date_to=date_to
+        page=page,
+        q=q,
+        tipe_f=tipe_f,
+        user_f=user_f,
+        date_from=date_from,
+        date_to=date_to
     )

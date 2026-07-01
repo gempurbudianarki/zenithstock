@@ -25,7 +25,7 @@
                 <td style="text-align:right;">
                     {% if product.stok == 0 %}
                     <span class="badge red"><span class="badge-dot"></span>Habis</span>
-                    {% elif product.stok < product.min_stok %}
+                    {% elif product.stok <= product.min_stok %}
                     <span class="badge amber" title="Batas kritis: {{ product.min_stok }}">
                         <span class="badge-dot"></span>{{ product.stok }} Kritis
                     </span>

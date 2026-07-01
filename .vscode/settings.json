@@ -1,0 +1,8 @@
+{
+  "python.defaultInterpreterPath": "D:\\miniconda3\\python.exe",
+  "python.analysis.extraPaths": [
+    "D:\\laragon\\www\\ZenithStock"
+  ],
+  "pyrefly.pythonInterpreter": "D:\\miniconda3\\python.exe",
+  "python.analysis.pythonPath": "D:\\miniconda3\\python.exe"
+}

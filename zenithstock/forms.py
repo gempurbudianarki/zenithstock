@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, IntegerField, SelectField, TextA
 from wtforms.validators import InputRequired, Length, EqualTo, NumberRange, ValidationError
 from zenithstock.models import User, Product, Supplier
 
+
 class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[
         InputRequired(message="Username wajib diisi."),
@@ -16,7 +17,11 @@ class RegisterForm(FlaskForm):
         InputRequired(message="Konfirmasi password wajib diisi."),
         EqualTo('password', message="Password dan konfirmasi password tidak cocok.")
     ])
-    role = SelectField('Hak Akses / Peran', choices=[('staff', 'Staff Gudang'), ('admin', 'Administrator')], default='staff')
+    role = SelectField(
+        'Hak Akses / Peran',
+        choices=[('staff', 'Staff Gudang'), ('admin', 'Administrator')],
+        default='staff'
+    )
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data.strip()).first()
@@ -66,9 +71,7 @@ class ProductForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         self.product_id = kwargs.pop('product_id', None)
         super(ProductForm, self).__init__(*args, **kwargs)
-        # Populate suppliers choices dynamically
         suppliers = Supplier.query.order_by(Supplier.nama).all()
-        # Coerce handles ID mapping; choice -1 will represent 'Tidak ada supplier'
         self.supplier_id.choices = [(-1, '-- Pilih Supplier --')] + [(s.id, s.nama) for s in suppliers]
 
     def validate_sku(self, sku):
@@ -106,7 +109,11 @@ class StockMovementForm(FlaskForm):
     product_id = SelectField('Pilih Produk', coerce=int, validators=[
         InputRequired(message="Silakan pilih produk.")
     ])
-    tipe = SelectField('Tipe Mutasi', choices=[('MASUK', 'Barang Masuk (+)'), ('KELUAR', 'Barang Keluar (-)'), ('PENYESUAIAN', 'Penyesuaian Stok')], validators=[
+    tipe = SelectField('Tipe Mutasi', choices=[
+        ('MASUK', 'Barang Masuk (+)'),
+        ('KELUAR', 'Barang Keluar (-)'),
+        ('PENYESUAIAN', 'Penyesuaian Stok')
+    ], validators=[
         InputRequired(message="Tipe transaksi wajib diisi.")
     ])
     jumlah = IntegerField('Jumlah / Qty', validators=[
@@ -120,4 +127,7 @@ class StockMovementForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(StockMovementForm, self).__init__(*args, **kwargs)
         products = Product.query.order_by(Product.sku).all()
-        self.product_id.choices = [(p.id, f"[{p.sku}] {p.nama_barang} (Stok saat ini: {p.stok})") for p in products]
+        self.product_id.choices = [
+            (p.id, f"[{p.sku}] {p.nama_barang} (Stok saat ini: {p.stok})")
+            for p in products
+        ]

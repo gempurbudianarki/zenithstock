@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort
 from flask_login import login_required, current_user
-from werkzeug.security import generate_password_hash
 from zenithstock import db
 from zenithstock.models import User, StockMovement
 
@@ -8,13 +7,14 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 
 def admin_required(f):
-    """Decorator – hanya admin yang boleh akses"""
     from functools import wraps
+
     @wraps(f)
     def decorated(*args, **kwargs):
         if not current_user.is_authenticated or not current_user.is_admin():
             abort(403)
         return f(*args, **kwargs)
+
     return decorated
 
 
@@ -22,7 +22,6 @@ def admin_required(f):
 @login_required
 @admin_required
 def index():
-    """Daftar semua pengguna sistem"""
     q = request.args.get('q', '').strip()
     role_filter = request.args.get('role', '').strip()
 
@@ -34,36 +33,41 @@ def index():
 
     users = query.order_by(User.username).all()
 
-    # Attach movement count per user
     user_stats = {}
     for u in users:
         cnt = StockMovement.query.filter_by(user_id=u.id).count()
         user_stats[u.id] = cnt
 
-    # HTMX partial
     if request.headers.get('HX-Request'):
-        return render_template('users/_table.html',
-                               users=users, user_stats=user_stats, q=q, role_filter=role_filter)
+        return render_template(
+            'users/_table.html',
+            users=users,
+            user_stats=user_stats,
+            q=q,
+            role_filter=role_filter
+        )
 
-    return render_template('users/index.html',
-                           users=users, user_stats=user_stats,
-                           q=q, role_filter=role_filter,
-                           total_users=User.query.count(),
-                           total_admin=User.query.filter_by(role='admin').count(),
-                           total_staff=User.query.filter_by(role='staff').count())
+    return render_template(
+        'users/index.html',
+        users=users,
+        user_stats=user_stats,
+        q=q,
+        role_filter=role_filter,
+        total_users=User.query.count(),
+        total_admin=User.query.filter_by(role='admin').count(),
+        total_staff=User.query.filter_by(role='staff').count()
+    )
 
 
 @users_bp.route('/edit/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def edit(user_id):
-    """Ubah data user – role, reset password"""
     user = User.query.get_or_404(user_id)
 
     if request.method == 'POST':
         action = request.form.get('action')
 
-        # ── Change Role ───────────────────────────────────
         if action == 'change_role':
             new_role = request.form.get('role')
             if new_role not in ('admin', 'staff'):
@@ -76,7 +80,6 @@ def edit(user_id):
                 flash(f'Peran pengguna "{user.username}" diubah menjadi {new_role.upper()}.', 'success')
             return redirect(url_for('users.index'))
 
-        # ── Change Status ───────────────────────────────────
         elif action == 'change_status':
             new_status = request.form.get('status', '').strip()
             if new_status not in ('active', 'pending', 'inactive'):
@@ -86,12 +89,14 @@ def edit(user_id):
             else:
                 user.status = new_status
                 db.session.commit()
-                flash(f'Status pengguna "{user.username}" berhasil diubah menjadi {new_status.upper()}.', 'success')
+                flash(
+                    f'Status pengguna "{user.username}" berhasil diubah menjadi {new_status.upper()}.',
+                    'success'
+                )
             return redirect(url_for('users.index'))
 
-        # ── Reset Password ────────────────────────────────
         elif action == 'reset_password':
-            new_pw  = request.form.get('new_password', '').strip()
+            new_pw = request.form.get('new_password', '').strip()
             confirm = request.form.get('confirm_password', '').strip()
             if len(new_pw) < 6:
                 flash('Password baru minimal 6 karakter.', 'danger')
@@ -103,7 +108,6 @@ def edit(user_id):
                 flash(f'Password pengguna "{user.username}" berhasil direset.', 'success')
             return redirect(url_for('users.index'))
 
-    # Movement count for this user
     movement_count = StockMovement.query.filter_by(user_id=user.id).count()
     return render_template('users/edit.html', user=user, movement_count=movement_count)
 
@@ -112,7 +116,6 @@ def edit(user_id):
 @login_required
 @admin_required
 def delete(user_id):
-    """Hapus user – tidak bisa hapus diri sendiri"""
     if user_id == current_user.id:
         flash('Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif.', 'danger')
         return redirect(url_for('users.index'))
@@ -120,15 +123,16 @@ def delete(user_id):
     user = User.query.get_or_404(user_id)
     username = user.username
 
-    # Cek apakah user punya movement log – jika ada, beri peringatan
     movement_count = StockMovement.query.filter_by(user_id=user_id).count()
     if movement_count > 0:
-        flash(f'Pengguna "{username}" memiliki {movement_count} log transaksi. '
-              f'Data log tetap tersimpan namun referensi pengguna akan terputus.', 'warning')
+        flash(
+            f'Pengguna "{username}" memiliki {movement_count} log transaksi. '
+            f'Data log tetap tersimpan namun referensi pengguna akan terputus.',
+            'warning'
+        )
 
     try:
-        # Set user_id in movements to NULL (orphan) sebelum hapus user
-        StockMovement.query.filter_by(user_id=user_id).update({'user_id': current_user.id})
+        StockMovement.query.filter_by(user_id=user_id).update({'user_id': None})
         db.session.delete(user)
         db.session.commit()
         flash(f'Pengguna "{username}" berhasil dihapus dari sistem.', 'success')
@@ -148,7 +152,6 @@ def delete(user_id):
 @login_required
 @admin_required
 def toggle_role(user_id):
-    """Toggle role admin/staff dengan HTMX"""
     if user_id == current_user.id:
         flash('Anda tidak dapat mengubah peran akun sendiri.', 'warning')
         return redirect(url_for('users.index'))
@@ -164,11 +167,10 @@ def toggle_role(user_id):
 @login_required
 @admin_required
 def toggle_status(user_id):
-    """Toggle status active/inactive/pending dengan HTMX atau standard redirect"""
     if user_id == current_user.id:
         flash('Anda tidak dapat menonaktifkan akun sendiri.', 'warning')
         return redirect(url_for('users.index'))
-        
+
     user = User.query.get_or_404(user_id)
     if user.status == 'pending':
         user.status = 'active'
@@ -179,7 +181,7 @@ def toggle_status(user_id):
     else:
         user.status = 'active'
         flash(f'Akun "{user.username}" diaktifkan kembali.', 'success')
-        
+
     db.session.commit()
     return redirect(url_for('users.index'))
 
@@ -188,17 +190,16 @@ def toggle_status(user_id):
 @login_required
 @admin_required
 def backup():
-    """Mengunduh file database SQLite as backup (Admin-only)"""
     import os
     from datetime import datetime
     from flask import send_file, current_app
-    
+
     db_uri = current_app.config['SQLALCHEMY_DATABASE_URI']
     if db_uri.startswith('sqlite:///'):
         db_path = db_uri.replace('sqlite:///', '')
         if not os.path.isabs(db_path):
             db_path = os.path.join(current_app.instance_path, db_path)
-            
+
         if os.path.exists(db_path):
             filename = f"zenithstock_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
             return send_file(db_path, as_attachment=True, download_name=filename)

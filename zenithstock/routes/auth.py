@@ -6,6 +6,7 @@ from zenithstock.forms import RegisterForm, LoginForm
 
 auth_bp = Blueprint('auth', __name__)
 
+
 @auth_bp.route('/')
 def welcome():
     if current_user.is_authenticated:
@@ -30,28 +31,26 @@ def tentang_aplikasi():
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    # Only redirect if NOT admin – admin can access to add new users
     if current_user.is_authenticated and not current_user.is_admin():
         return redirect(url_for('dashboard.index'))
-        
+
     form = RegisterForm()
     in_app = current_user.is_authenticated and current_user.is_admin()
-    
+
     if form.validate_on_submit():
         username = form.username.data.strip()
         password = form.password.data
-        
+
         if in_app:
             role = form.role.data
             status = 'active'
         else:
             role = 'staff'
             status = 'pending'
-            
-        # Create user
+
         new_user = User(username=username, role=role, status=status)
         new_user.set_password(password)
-        
+
         try:
             db.session.add(new_user)
             db.session.commit()
@@ -60,10 +59,10 @@ def register():
                 return redirect(url_for('users.index'))
             flash('Registrasi berhasil! Akun Anda sedang ditinjau oleh Administrator.', 'success')
             return redirect(url_for('auth.login'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             flash('Terjadi kesalahan saat menyimpan data. Silakan coba lagi.', 'danger')
-            
+
     return render_template('auth/register.html', form=form)
 
 
@@ -71,12 +70,12 @@ def register():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard.index'))
-        
+
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data.strip()
         password = form.password.data
-        
+
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             if user.status != 'active':
@@ -85,14 +84,14 @@ def login():
                 else:
                     flash('Akun Anda telah dinonaktifkan. Hubungi Administrator.', 'danger')
                 return redirect(url_for('auth.login'))
-                
+
             login_user(user)
             next_page = request.args.get('next')
             flash(f'Selamat datang kembali, {user.username} (Akses: {user.role.upper()})!', 'success')
             return redirect(next_page or url_for('dashboard.index'))
         else:
             flash('Username atau password salah.', 'danger')
-            
+
     return render_template('auth/login.html', form=form)
 
 
@@ -107,12 +106,11 @@ def logout():
 @auth_bp.route('/change-password', methods=['GET', 'POST'])
 @login_required
 def change_password():
-    """Halaman ubah password mandiri bagi pengguna login"""
     if request.method == 'POST':
         old_password = request.form.get('old_password', '').strip()
         new_password = request.form.get('new_password', '').strip()
         confirm_password = request.form.get('confirm_password', '').strip()
-        
+
         if not current_user.check_password(old_password):
             flash('Password lama salah.', 'danger')
         elif len(new_password) < 6:
@@ -124,5 +122,5 @@ def change_password():
             db.session.commit()
             flash('Password Anda berhasil diperbarui!', 'success')
             return redirect(url_for('dashboard.index'))
-            
+
     return render_template('auth/change_password.html')

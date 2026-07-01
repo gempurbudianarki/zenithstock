@@ -117,7 +117,7 @@ Tambah Pengguna Baru
 
         <div style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--color-text-muted);">
             Sudah memiliki akun?
-            <a href="{{ url_for('auth.login') }}" style="color:var(--zs-cyan-400);font-weight:600;text-decoration:none;">Masuk di sini</a>
+            <a href="{{ url_for('auth.login') }}" style="color:#60a5fa;font-weight:600;text-decoration:none;transition:color var(--transition-fast) ease;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'">Masuk di sini</a>
         </div>
         {% endif %}
     </form>

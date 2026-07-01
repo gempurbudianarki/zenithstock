@@ -22,7 +22,7 @@ Tambah Pengguna Baru
     <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
         {{ form.csrf_token }}
 
-        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;">
+        <div style="display:flex;flex-direction:column;gap:{% if in_app %}16px{% else %}12px{% endif %};margin-bottom:{% if in_app %}24px{% else %}18px{% endif %};">
 
             <!-- Username -->
             <div>
@@ -41,10 +41,17 @@ Tambah Pengguna Baru
             <!-- Role -->
             <div>
                 <label class="form-label" for="role">Hak Akses / Peran <span style="color:var(--color-danger);">*</span></label>
-                <div class="select-wrapper">
-                    {{ form.role(id="role", class="form-control") }}
+                <div class="input-group">
+                    <span class="input-prefix">
+                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </span>
+                    <div class="select-wrapper">
+                        {{ form.role(id="role", class="form-control") }}
+                    </div>
                 </div>
-                <div class="form-helper">Admin: akses penuh. Staff: operasional saja (tambah/ubah, tidak bisa hapus).</div>
+                <div class="form-helper" style="margin-left:38px;margin-top:4px;font-size:0.7rem;line-height:1.35;">Admin: akses penuh. Staff: operasional saja.</div>
             </div>
 
             <!-- Password -->
@@ -56,7 +63,7 @@ Tambah Pengguna Baru
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </span>
-                    {{ form.password(id="password", class="form-control", placeholder="Min. 6 karakter", autocomplete="new-password", **{":type": "show ? 'text' : 'password'"}) }}
+                    {{ form.password(id="password", class="form-control has-suffix", placeholder="Min. 6 karakter", autocomplete="new-password", **{":type": "show ? 'text' : 'password'"}) }}
                     <button type="button" class="input-suffix" @click="show=!show" style="pointer-events:all;cursor:pointer;background:none;border:none;padding:0;color:var(--color-text-muted);" aria-label="Toggle visibilitas">
                         <svg x-show="!show" style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

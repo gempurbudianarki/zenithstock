@@ -1318,3 +1318,19 @@ select.form-control option {
     opacity: .3;
   }
 }
+
+/* Clickable KPI cards interaction */
+.stat-card.clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast) ease, border-color var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
+
+.stat-card.clickable:hover {
+  transform: translateY(-2px) scale(1.015);
+  border-color: rgba(34, 211, 238, 0.25);
+  box-shadow: var(--shadow-elevated), 0 8px 30px rgba(34, 211, 238, 0.05);
+}
+
+.stat-card.clickable:active {
+  transform: translateY(0) scale(0.99);
+}

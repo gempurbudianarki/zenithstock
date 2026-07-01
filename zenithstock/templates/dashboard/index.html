@@ -16,7 +16,12 @@ Inventaris Barang
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
         <!-- Total SKU -->
-        <div class="stat-card">
+        <div class="stat-card clickable"
+             hx-get="{{ url_for('dashboard.index') }}"
+             hx-target="#product-table-container"
+             hx-push-url="true"
+             @click="searchQ = ''; catFilter = '';"
+             title="Klik untuk menampilkan semua barang">
             <div>
                 <div class="stat-label">Total SKU</div>
                 <div class="stat-value">{{ total_products }}</div>
@@ -46,7 +51,11 @@ Inventaris Barang
         </div>
 
         <!-- Stok Kritis -->
-        <div class="stat-card">
+        <div class="stat-card clickable"
+             hx-get="{{ url_for('dashboard.index', filter='critical') }}"
+             hx-target="#product-table-container"
+             hx-push-url="true"
+             title="Klik untuk memfilter barang dengan stok kritis">
             <div>
                 <div class="stat-label">Stok Kritis</div>
                 <div class="stat-value {% if low_stock_count > 0 %}amber{% endif %}">{{ low_stock_count }}</div>
@@ -61,7 +70,11 @@ Inventaris Barang
 
         <!-- Habis -->
         {% if out_of_stock_count > 0 %}
-        <div class="stat-card" style="border-color:rgba(239,68,68,0.15);">
+        <div class="stat-card clickable" style="border-color:rgba(239,68,68,0.15);"
+             hx-get="{{ url_for('dashboard.index', filter='empty') }}"
+             hx-target="#product-table-container"
+             hx-push-url="true"
+             title="Klik untuk memfilter barang yang habis">
             <div>
                 <div class="stat-label">Stok Habis</div>
                 <div class="stat-value red">{{ out_of_stock_count }}</div>
@@ -74,7 +87,12 @@ Inventaris Barang
             </div>
         </div>
         {% else %}
-        <div class="stat-card">
+        <div class="stat-card clickable"
+             hx-get="{{ url_for('dashboard.index') }}"
+             hx-target="#product-table-container"
+             hx-push-url="true"
+             @click="searchQ = ''; catFilter = '';"
+             title="Klik untuk menampilkan semua barang">
             <div>
                 <div class="stat-label">Volume Stok</div>
                 <div class="stat-value">{{ total_stock }}</div>

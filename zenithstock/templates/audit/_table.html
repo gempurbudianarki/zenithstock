@@ -80,20 +80,29 @@
     <span>Menampilkan {{ movements|length }} dari {{ pagination.total }} entri (Halaman {{ pagination.page }}/{{ pagination.pages }})</span>
     <div style="display:flex;gap:4px;">
         {% if pagination.has_prev %}
-        <a href="{{ url_for('audit.index', page=pagination.prev_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}" 
-           class="btn btn-secondary btn-sm">‹ Prev</a>
+        <button hx-get="{{ url_for('audit.index', page=pagination.prev_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}"
+                hx-target="#audit-table-container"
+                hx-push-url="true"
+                class="btn btn-secondary btn-sm"
+                style="cursor:pointer;">‹ Prev</button>
         {% endif %}
         {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
             {% if p %}
-            <a href="{{ url_for('audit.index', page=p, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}"
-               class="btn btn-sm {% if p == pagination.page %}btn-primary{% else %}btn-secondary{% endif %}">{{ p }}</a>
+            <button hx-get="{{ url_for('audit.index', page=p, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}"
+                    hx-target="#audit-table-container"
+                    hx-push-url="true"
+                    class="btn btn-sm {% if p == pagination.page %}btn-primary{% else %}btn-secondary{% endif %}"
+                    style="cursor:pointer;">{{ p }}</button>
             {% else %}
             <span style="padding:6px 8px;color:var(--color-text-muted);">…</span>
             {% endif %}
         {% endfor %}
         {% if pagination.has_next %}
-        <a href="{{ url_for('audit.index', page=pagination.next_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}" 
-           class="btn btn-secondary btn-sm">Next ›</a>
+        <button hx-get="{{ url_for('audit.index', page=pagination.next_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}"
+                hx-target="#audit-table-container"
+                hx-push-url="true"
+                class="btn btn-secondary btn-sm"
+                style="cursor:pointer;">Next ›</button>
         {% endif %}
     </div>
 </div>

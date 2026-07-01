@@ -11,6 +11,7 @@ dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 def index():
     search_query = request.args.get('q', '').strip()
     category_filter = request.args.get('category', '').strip()
+    status_filter = request.args.get('filter', '').strip()
     
     # Base query
     query = Product.query
@@ -24,6 +25,11 @@ def index():
         )
     if category_filter:
         query = query.filter(Product.kategori == category_filter)
+        
+    if status_filter == 'critical':
+        query = query.filter(Product.stok > 0, Product.stok <= Product.min_stok)
+    elif status_filter == 'empty':
+        query = query.filter(Product.stok == 0)
         
     products = query.order_by(Product.sku).all()
     

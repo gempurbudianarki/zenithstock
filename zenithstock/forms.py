@@ -16,9 +16,7 @@ class RegisterForm(FlaskForm):
         InputRequired(message="Konfirmasi password wajib diisi."),
         EqualTo('password', message="Password dan konfirmasi password tidak cocok.")
     ])
-    role = SelectField('Hak Akses / Peran', choices=[('staff', 'Staff Gudang'), ('admin', 'Administrator')], validators=[
-        InputRequired(message="Role wajib ditentukan.")
-    ])
+    role = SelectField('Hak Akses / Peran', choices=[('staff', 'Staff Gudang'), ('admin', 'Administrator')], default='staff')
 
     def validate_username(self, username):
         user = User.query.filter_by(username=username.data.strip()).first()

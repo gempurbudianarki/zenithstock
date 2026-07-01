@@ -76,6 +76,19 @@ def edit(user_id):
                 flash(f'Peran pengguna "{user.username}" diubah menjadi {new_role.upper()}.', 'success')
             return redirect(url_for('users.index'))
 
+        # ── Change Status ───────────────────────────────────
+        elif action == 'change_status':
+            new_status = request.form.get('status', '').strip()
+            if new_status not in ('active', 'pending', 'inactive'):
+                flash('Status tidak valid.', 'danger')
+            elif user.id == current_user.id and new_status != 'active':
+                flash('Anda tidak dapat menonaktifkan akun Anda sendiri.', 'warning')
+            else:
+                user.status = new_status
+                db.session.commit()
+                flash(f'Status pengguna "{user.username}" berhasil diubah menjadi {new_status.upper()}.', 'success')
+            return redirect(url_for('users.index'))
+
         # ── Reset Password ────────────────────────────────
         elif action == 'reset_password':
             new_pw  = request.form.get('new_password', '').strip()
@@ -144,6 +157,30 @@ def toggle_role(user_id):
     user.role = 'staff' if user.role == 'admin' else 'admin'
     db.session.commit()
     flash(f'Peran "{user.username}" diubah ke {user.role.upper()}.', 'success')
+    return redirect(url_for('users.index'))
+
+
+@users_bp.route('/toggle-status/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def toggle_status(user_id):
+    """Toggle status active/inactive/pending dengan HTMX atau standard redirect"""
+    if user_id == current_user.id:
+        flash('Anda tidak dapat menonaktifkan akun sendiri.', 'warning')
+        return redirect(url_for('users.index'))
+        
+    user = User.query.get_or_404(user_id)
+    if user.status == 'pending':
+        user.status = 'active'
+        flash(f'Akun "{user.username}" telah disetujui (diterima) dan aktif.', 'success')
+    elif user.status == 'active':
+        user.status = 'inactive'
+        flash(f'Akun "{user.username}" dinonaktifkan.', 'warning')
+    else:
+        user.status = 'active'
+        flash(f'Akun "{user.username}" diaktifkan kembali.', 'success')
+        
+    db.session.commit()
     return redirect(url_for('users.index'))
 
 

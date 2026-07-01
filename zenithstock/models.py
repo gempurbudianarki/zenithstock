@@ -10,6 +10,11 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='staff') # 'admin' or 'staff'
+    status = db.Column(db.String(20), nullable=False, default='pending') # 'active', 'pending', 'inactive'
+
+    @property
+    def is_active(self):
+        return self.status == 'active'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

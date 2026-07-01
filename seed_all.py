@@ -15,11 +15,11 @@ with app.app_context():
     db.session.commit()
     
     print("Creating default users...")
-    admin = User(username='admin', role='admin')
+    admin = User(username='admin', role='admin', status='active')
     admin.set_password('admin123')
     db.session.add(admin)
     
-    staff = User(username='staff', role='staff')
+    staff = User(username='staff', role='staff', status='active')
     staff.set_password('staff123')
     db.session.add(staff)
     

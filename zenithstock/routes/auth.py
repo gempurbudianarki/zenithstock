@@ -35,23 +35,30 @@ def register():
         return redirect(url_for('dashboard.index'))
         
     form = RegisterForm()
+    in_app = current_user.is_authenticated and current_user.is_admin()
+    
     if form.validate_on_submit():
         username = form.username.data.strip()
         password = form.password.data
-        role = form.role.data
         
+        if in_app:
+            role = form.role.data
+            status = 'active'
+        else:
+            role = 'staff'
+            status = 'pending'
+            
         # Create user
-        new_user = User(username=username, role=role)
+        new_user = User(username=username, role=role, status=status)
         new_user.set_password(password)
         
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash(f'Akun pengguna "{username}" ({role.upper()}) berhasil dibuat!', 'success')
-            # Admin creating user → redirect to user management
-            if current_user.is_authenticated and current_user.is_admin():
+            if in_app:
+                flash(f'Akun pengguna "{username}" ({role.upper()}) berhasil dibuat!', 'success')
                 return redirect(url_for('users.index'))
-            flash('Registrasi berhasil! Silakan login untuk melanjutkan.', 'success')
+            flash('Registrasi berhasil! Akun Anda sedang ditinjau oleh Administrator.', 'success')
             return redirect(url_for('auth.login'))
         except Exception as e:
             db.session.rollback()
@@ -72,6 +79,13 @@ def login():
         
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
+            if user.status != 'active':
+                if user.status == 'pending':
+                    flash('Akun Anda sedang ditinjau oleh Administrator. Harap tunggu persetujuan.', 'warning')
+                else:
+                    flash('Akun Anda telah dinonaktifkan. Hubungi Administrator.', 'danger')
+                return redirect(url_for('auth.login'))
+                
             login_user(user)
             next_page = request.args.get('next')
             flash(f'Selamat datang kembali, {user.username} (Akses: {user.role.upper()})!', 'success')

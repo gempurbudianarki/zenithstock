@@ -38,7 +38,8 @@ Tambah Pengguna Baru
                 {% if form.username.errors %}{% for e in form.username.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
             </div>
 
-            <!-- Role -->
+            <!-- Role (hanya jika diakses dari dalam aplikasi oleh Admin) -->
+            {% if in_app %}
             <div>
                 <label class="form-label" for="role">Hak Akses / Peran <span style="color:var(--color-danger);">*</span></label>
                 <div class="input-group">
@@ -53,6 +54,7 @@ Tambah Pengguna Baru
                 </div>
                 <div class="form-helper" style="margin-left:38px;margin-top:4px;font-size:0.7rem;line-height:1.35;">Admin: akses penuh. Staff: operasional saja.</div>
             </div>
+            {% endif %}
 
             <!-- Password -->
             <div>

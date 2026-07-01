@@ -26,6 +26,15 @@ Ubah Pengguna
                     {% else %}
                     <span class="badge slate"><span class="badge-dot"></span>Staff</span>
                     {% endif %}
+                    
+                    {% if user.status == 'active' %}
+                    <span class="badge green"><span class="badge-dot"></span>Aktif</span>
+                    {% elif user.status == 'pending' %}
+                    <span class="badge amber" style="background:rgba(245,158,11,0.06);color:#fbbf24;border:1px solid rgba(245,158,11,0.2);"><span class="badge-dot" style="background:#fbbf24;"></span>Menunggu</span>
+                    {% else %}
+                    <span class="badge red"><span class="badge-dot"></span>Non-Aktif</span>
+                    {% endif %}
+                    
                     <span style="font-size:0.75rem;color:var(--color-text-muted);">{{ movement_count }} transaksi dicatat</span>
                 </div>
             </div>
@@ -67,6 +76,45 @@ Ubah Pengguna
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                     Simpan Peran
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Change Status -->
+    <div class="zs-panel" style="padding:24px;">
+        <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 4px;">Ubah Status Akun</h3>
+        <p style="font-size:0.8rem;color:var(--color-text-muted);margin:0 0 20px;">Atur status keaktifan akun pengguna ini untuk mengizinkan atau menangguhkan akses masuk mereka.</p>
+
+        {% if user.id == current_user.id %}
+        <div style="padding:12px 16px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:var(--radius-md);font-size:0.8125rem;color:var(--color-text-muted);display:flex;gap:8px;align-items:flex-start;">
+            <svg style="width:15px;height:15px;flex-shrink:0;color:#fbbf24;margin-top:1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Anda tidak dapat menonaktifkan akun Anda sendiri yang sedang aktif.
+        </div>
+        {% else %}
+        <form method="POST" action="{{ url_for('users.edit', user_id=user.id) }}" style="display:flex;flex-direction:column;gap:16px;">
+            <input type="hidden" name="action" value="change_status">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label class="form-label" for="status">Status Pengguna</label>
+                <div class="select-wrapper" style="max-width:280px;">
+                    <select name="status" id="status" class="form-control">
+                        <option value="active" {% if user.status == 'active' %}selected{% endif %}>Aktif – Dapat Mengakses Sistem</option>
+                        <option value="pending" {% if user.status == 'pending' %}selected{% endif %}>Menunggu – Peninjauan / Pendaftaran Baru</option>
+                        <option value="inactive" {% if user.status == 'inactive' %}selected{% endif %}>Non-Aktif – Akses Ditangguhkan</option>
+                    </select>
+                </div>
+                <div class="form-helper">Status "Menunggu" atau "Non-Aktif" akan mencegah user login.</div>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Status
                 </button>
             </div>
         </form>

@@ -1,149 +1,173 @@
-# 🌌 ZenithStock Enterprise
-### *Sistem Informasi Manajemen Logistik & Inventaris Industri Real-Time*
+<div align="center">
+  <img src="zenithstock/static/img/logo.png" alt="ZenithStock Logo" width="120" style="filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.45)); margin-bottom: 12px;" />
+  
+  # 🌌 ZenithStock Enterprise
+  
+  ### *Platform Sistem Informasi Manajemen Logistik & Inventaris Barang Pergudangan Modern*
+  
+  ---
+  
+  [![Python Version](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](#)
+  [![Flask Framework](https://img.shields.io/badge/Flask-3.0.3-000000?style=for-the-badge&logo=flask&logoColor=white)](#)
+  [![Database](https://img.shields.io/badge/SQLite-3.x-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](#)
+  [![Styling](https://img.shields.io/badge/Tailwind_CSS-3.x-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white)](#)
+  [![Charts](https://img.shields.io/badge/Chart.js-4.x-FF6384?style=for-the-badge&logo=chart.js&logoColor=white)](#)
+  
+</div>
 
 ---
 
 ## 📖 Analisis Kasus & Penjelasan Umum
 
-Dalam industri manufaktur dan distribusi skala besar, **manajemen gudang** sering kali menemui tantangan fatal yang berdampak langsung pada kerugian finansial. Beberapa permasalahan utama meliputi:
+Dalam operasional rantai pasok (*supply chain*) gudang logistik skala besar, **pengendalian stok** adalah jantung operasional yang rawan terhadap inefisiensi dan kecurangan. ZenithStock Enterprise dirancang secara khusus untuk mengatasi masalah-masalah pergudangan kritis:
 
-* **Penyusutan Aset (Stock Shrinkage):** Kehilangan unit barang akibat tidak adanya pencatatan transaksi yang permanen dan transparan.
-* **Redundansi Kode (Data Redundancy):** Penginputan kode SKU (*Stock Keeping Unit*) yang ganda sehingga merusak database inventaris.
-* **Kebocoran Wewenang:** Tindakan manipulasi harga atau stok oleh pihak operasional yang tidak memiliki otoritas otorisasi.
-* **Kelambatan Keputusan:** Pengambilan keputusan yang terhambat karena tidak adanya data agregat visual tentang total nilai aset dan volume stok terkini.
-
-**ZenithStock Enterprise** hadir sebagai solusi komprehensif. Sistem ini dibangun untuk menegakkan **Integritas Data** dan **Keamanan Transaksi**. Dengan mengotomatisasi setiap perubahan stok ke dalam log yang bersifat *immutable* (tidak bisa dihapus), ZenithStock memastikan setiap pergerakan barang terdokumentasi secara transparan dan akuntabel.
+* **Pencegahan Penyusutan Barang (Asset Shrinkage):** Menghentikan kehilangan barang akibat tidak adanya pencatatan transaksi yang permanen dengan mengotomatisasi log mutasi yang bersifat *immutable* (tidak dapat diubah).
+* **Validasi Integritas Kode Identitas (SKU):** Mencegah duplikasi data inventaris dengan filter validasi keunikan SKU (*Stock Keeping Unit*) di level form dan database.
+* **Pembatasan Hak Otoritas:** Mencegah modifikasi data harga atau penghapusan barang oleh staff operasional melalui pembatasan akses berbasis peran (*Role-Based Access Control*).
+* **Agregasi Nilai Aset Real-Time:** Memberikan informasi valuasi aset gudang yang akurat (Kuantitas × Harga Beli) secara instan melalui dashboard grafik analitik.
 
 ---
 
 ## 🛠️ Arsitektur & Struktur Folder Project
 
-Aplikasi ini dibangun menggunakan arsitektur **MVC (Model-View-Controller)** yang terpisah dengan modul-modul fungsional (**Flask Blueprint**). Struktur direktori diorganisasikan agar bersih dan modular:
+Aplikasi ini mengadopsi pola desain **MVC (Model-View-Controller)** yang modular menggunakan **Flask Blueprint** untuk memisahkan tanggung jawab kode program.
 
-```text
-📁 ZenithStock
-│
-├── 📄 app.py                  # Entry point aplikasi (Inisialisasi server & port)
-├── 📄 requirements.txt        # Dependensi pustaka Python pendukung
-├── 📄 seed_all.py             # Script otomatisasi seeding data demonstrasi
-│
-└── 📁 zenithstock/            # Package utama aplikasi
-    ├── 📄 __init__.py         # Inisialisasi app, db ORM, CSRF, & login manager
-    ├── 📄 models.py           # Layer Data (OOP): Definisi relasi database & tabel
-    ├── 📄 forms.py            # Layer Validasi: Class validasi formulir (Flask-WTF)
-    │
-    ├── 📁 routes/             # Layer Controller (Blueprints)
-    │   ├── 📄 auth.py         # Autentikasi keamanan user (login, register, logout)
-    │   ├── 📄 dashboard.py    # Logika CRUD produk/barang utama
-    │   ├── 📄 movements.py    # Manajemen pencatatan aliran transaksi stok
-    │   ├── 📄 suppliers.py    # Logika CRUD supplier/vendor logistik
-    │   ├── 📄 analytics.py    # Pengolahan kalkulasi data analitik & grafik
-    │   ├── 📄 audit.py        # Log audit trail keamanan transaksi
-    │   └── 📄 users.py        # Otorisasi manajemen user (khusus Admin)
-    │
-    ├── 📁 static/             # Aset Statis Aplikasi
-    │   ├── 📁 css/            # Lembar gaya visual utama (style.css)
-    │   └── 📁 img/            # Media logo dan latar belakang dinamis
-    │
-    └── 📁 templates/          # Layer View (Template Jinja2)
-        ├── 📄 base.html       # Kerangka dasar induk web (Sidebar & Header)
-        ├── 📄 welcome.html    # Landing page responsif modern sebelum masuk sistem
-        ├── 📁 auth/           # Formulir login dan registrasi akun
-        ├── 📁 dashboard/      # Tabel utama inventaris dan form CRUD barang
-        ├── 📁 movements/      # Form catat mutasi transaksi barang masuk/keluar
-        ├── 📁 suppliers/      # Panel CRUD mitra pemasok/vendor
-        ├── 📁 analytics/      # Visualisasi analitik grafik kinerja gudang
-        ├── 📁 audit/          # Lembar pantau riwayat mutasi komprehensif
-        ├── 📁 users/          # Lembar manajemen akun staff gudang
-        └── 📁 errors/         # Penanganan respon HTTP error (403, 404, 500)
+| Berkas / Direktori | Tipe | Fungsi & Deskripsi Peran dalam Sistem |
+| :--- | :---: | :--- |
+| `app.py` | File | Entry point utama aplikasi untuk memuat konfigurasi dan menjalankan server web Flask lokal. |
+| `seed_all.py` | File | Script utilitas data seeder untuk menginisialisasi database dengan data uji coba logistik yang melimpah. |
+| `requirements.txt` | File | Daftar dependensi modul Python yang dibutuhkan untuk menjalankan sistem. |
+| `zenithstock/models.py` | File | Layer Data (OOP): Berisi deklarasi kelas ORM SQLAlchemy untuk memetakan tabel database. |
+| `zenithstock/forms.py` | File | Layer Validasi: Berisi deklarasi kelas WTForms untuk memproses penyaringan masukan data formulir. |
+| `zenithstock/routes/` | Folder | Layer Controller: Kumpulan blueprint Flask yang menangani alur routing dan logika bisnis. |
+| `zenithstock/templates/` | Folder | Layer View: Berbasis Jinja2 template untuk menyajikan halaman antarmuka pengguna (UI). |
+| `zenithstock/static/` | Folder | Aset Statis: Berisi master stylesheet kustom (`style.css`), berkas logo, dan background. |
+| `instance/zenithstock.db` | File | Database SQLite lokal yang menampung seluruh tabel data relasional terintegrasi. |
+
+---
+
+## 💎 Penjelasan Detail Implementasi Sistem
+
+ZenithStock Enterprise dibangun dengan mengintegrasikan berbagai teknologi mutakhir dalam pengembangan aplikasi web:
+
+### 🌐 Routing & Blueprint Flask
+Untuk menghindari penulisan rute yang menumpuk di satu berkas, aplikasi dibagi menjadi beberapa **Blueprint** modular:
+* **Auth BP (`routes/auth.py`):** Menangani rute beranda (`/`), masuk (`/login`), daftar (`/register`), dan keluar (`/logout`).
+* **Dashboard BP (`routes/dashboard.py`):** Mengelola tabel inventaris utama (`/dashboard`) dan CRUD produk.
+* **Movements BP (`routes/movements.py`):** Mengelola pencatatan transaksi mutasi masuk dan keluar barang.
+* **Suppliers BP (`routes/suppliers.py`):** Menangani CRUD database mitra pemasok.
+* **Analytics BP (`routes/analytics.py`):** Memproses visualisasi statistik grafik kinerja gudang.
+* **Audit BP (`routes/audit.py`):** Menampilkan log audit trail transaksi historis secara detail.
+
+> [!NOTE]
+> Rute web menggunakan method **GET** untuk me-render halaman UI dan **POST** untuk mengirimkan data sensitif (misal password, penambahan barang) ke database secara aman.
+
+---
+
+### 🎨 Tampilan Dinamis (Template Engine Jinja2)
+Jinja2 digunakan untuk menyajikan halaman web dinamis dengan performa tinggi dan struktur kode yang kering (*Don't Repeat Yourself - DRY*):
+* **Pewarisan Layout (`base.html`):** Berisi kerangka dasar HTML, menu sidebar, header topbar, dan penampung Toast Flash message. Halaman anak cukup memanggil `{% extends "base.html" %}`.
+* **Block System:** Bagian isi konten halaman anak didefinisikan secara modular di dalam `{% block content %}` dan akan di-render otomatis ke dalam template induk.
+* **Kondisional & Loop Dinamis:** Data dari database dievaluasi secara dinamis menggunakan kondisional `{% if %}`, perulangan `{% for %}`, dan format filter angka Rupiah pada template.
+
+---
+
+### 🔒 Keamanan Formulir (Form Handling & Validation)
+Masukan data dari pengguna disaring dengan sistem pengamanan 3 lapis sebelum dapat dieksekusi:
+* **Proteksi Token CSRF:** Modul `Flask-WTF` secara otomatis menyematkan token CSRF terenkripsi pada setiap form untuk menangkal serangan pembajakan sesi.
+* **Validasi Tipe Data:** Input untuk Stok dan Harga dipaksa berupa angka positif melalui validator WTForms (`IntegerField`, `DecimalField`, `NumberRange`).
+* **Keunikan SKU & Username:** Sebelum record baru disimpan ke DB, sistem melakukan pencarian ke tabel untuk memastikan tidak ada duplikasi kode SKU atau nama pengguna.
+
+---
+
+### 💾 Relasi Data Objek (Database & SQLAlchemy ORM)
+Pengelolaan database dikembangkan menggunakan basis **SQLAlchemy ORM** dengan model relasi terintegrasi:
+
+```mermaid
+classDiagram
+    class User {
+        +Integer id
+        +String username
+        +String password_hash
+        +String role
+        +is_admin()
+    }
+    class Supplier {
+        +Integer id
+        +String nama
+        +String kontak
+        +String telepon
+        +Text alamat
+    }
+    class Product {
+        +Integer id
+        +String sku
+        +String nama_barang
+        +String kategori
+        +Integer stok
+        +Integer harga
+        +Integer min_stok
+        +String lokasi_rak
+        +Integer supplier_id
+    }
+    class StockMovement {
+        +Integer id
+        +Integer product_id
+        +Integer user_id
+        +Integer jumlah
+        +String tipe
+        +String keterangan
+        +DateTime created_at
+    }
+    Supplier "1" --> "*" Product : memasok
+    Product "1" --> "*" StockMovement : riwayat mutasi
+    User "1" --> "*" StockMovement : mencatat
 ```
 
----
-
-## 🎯 Penjelasan Implementasi Fondasi Sistem
-
-Sistem informasi ZenithStock Enterprise telah dirancang dan diimplementasikan dengan memenuhi seluruh pilar rekayasa perangkat lunak web modern:
-
-### 1. Framework Utama (Flask)
-Aplikasi menggunakan **Flask** sebagai mesin backend. Desain modulnya menerapkan sistem **Blueprint** untuk membagi rute berdasarkan tanggung jawab logika masing-masing kelas kontroler:
-* **Fungsi Rute (Routing):** Mengatur pemetaan URL/endpoint agar mengarah ke fungsi eksekusi yang tepat di Python.
-* **HTTP Method handling (GET & POST):**
-  * **GET:** Digunakan untuk me-render halaman, meminta data dari server, dan memuat form.
-  * **POST:** Digunakan untuk mengirimkan data input dari formulir secara aman (enkripsi data di layer HTTP) guna melakukan registrasi, login, pembuatan produk, penambahan stok, dll.
+#### Siklus Operasi CRUD & Mutasi Otomatis
+* **Create (Tambah):** Menambahkan barang baru via `db.session.add(produk)`. Menambahkan barang baru dengan stok awal otomatis memicu pembuatan satu record log masuk (`MASUK`) di tabel `StockMovement` untuk menjaga akuntabilitas audit trail.
+* **Read (Baca):** Menampilkan data secara instan (`Product.query.all()`) dilengkapi dengan pagination dinamis pada audit log dan pemfilteran live-search di dashboard.
+* **Update (Ubah):** Mengubah detail harga, lokasi rak, atau stok produk. Jika stok diubah, sistem mencatat selisihnya sebagai tipe `PENYESUAIAN` di log mutasi secara otomatis.
+* **Delete (Hapus):** Penghapusan produk (`db.session.delete(produk)`) hanya diizinkan untuk Admin dan secara otomatis menghapus riwayat mutasi terkait secara berantai (*cascade deletion*).
 
 ---
 
-### 2. Antarmuka Dinamis & Pewarisan (Template Engine Jinja2)
-Visualisasi web menggunakan **Jinja2** yang menerapkan prinsip pewarisan terpusat (*Inheritance*) guna mewujudkan kode yang bersih (*Clean Code/DRY*):
-* **`base.html` sebagai Parent Template:** Berisi kerangka global halaman (impor Tailwind CSS, inisialisasi Alpine.js untuk drop-down, sidebar dinamis, dan header).
-* **`extends` dan `block`:** File anak (misal: halaman daftar barang) hanya perlu menulis `{% extends "base.html" %}` dan menuliskan isinya di dalam tag `{% block content %}`.
-* **Dynamic Rendering:** Data dari database dievaluasi secara dinamis menggunakan kondisional `{% if %}`, perulangan `{% for %}`, dan filter format angka/harga (mata uang Rupiah).
-
----
-
-### 3. Keamanan Input & Anti-Duplikasi (Form Handling & Validation)
-Setiap data masukan yang dikirim oleh pengguna disaring ketat sebelum masuk ke memori database:
-* **Token CSRF (Flask-WTF):** Setiap form wajib menyertakan token enkripsi CSRF untuk memvalidasi bahwa data dikirim dari formulir resmi aplikasi, bukan hasil injeksi pihak ketiga.
-* **Validasi Tipe Data & Range:** Memastikan input kuantitas stok dan nilai harga harus bertipe integer/float positif. Jika ada input huruf pada kolom angka, sistem secara otomatis menolak dan memunculkan pesan error.
-* **Validasi Keunikan Database:** Sebelum mendaftarkan barang baru, sistem mencocokkan kode SKU ke database untuk memastikan tidak ada duplikasi kode identitas barang.
-
----
-
-### 4. Manajemen Objek Database (SQLAlchemy ORM)
-Interaksi dengan SQLite dikelola secara murni lewat paradigma OOP (Object-Oriented Programming) menggunakan **SQLAlchemy**. Kita mendefinisikan tabel dalam bentuk **Class Model** dan atribut sebagai objek kolom database.
-
-#### Model Relasi Data (`models.py`)
-* **User (Tabel `users`):** Berisi username, password_hash, dan role.
-* **Supplier (Tabel `suppliers`):** Berisi profil vendor. Berelasi *one-to-many* ke tabel Product.
-* **Product (Tabel `products`):** Berisi data produk (SKU, nama, stok, harga, min_stok). Memiliki foreign key ke tabel Supplier dan berelasi *one-to-many* ke StockMovement.
-* **StockMovement (Tabel `stock_movements`):** Log mutasi. Memiliki foreign key ke tabel Product dan User untuk melacak siapa petugas yang memicu mutasi.
-
-#### Penerapan Siklus CRUD
-* **Create:** Membuat instansi objek baru dari class Model (misal: `Product(...)`), menyimpannya menggunakan `db.session.add(produk)`, lalu menulisnya secara fisik ke file database dengan `db.session.commit()`.
-* **Read:** Menampilkan data menggunakan pencarian objek seperti `Product.query.all()` atau pencarian filter spesifik `Product.query.filter_by(sku=input_sku).first()`.
-* **Update:** Memuat objek berdasarkan id, memodifikasi nilai atribut secara langsung di python, lalu menyimpannya kembali dengan `db.session.commit()`.
-* **Delete:** Melakukan penghapusan fisik record data produk melalui perintah `db.session.delete(produk_objektif)` yang juga secara otomatis menghapus mutasi terkait secara berantai (*cascade deletion*).
-
----
-
-### 5. Otentikasi & Otorisasi Sistem Keamanan (Authentication & Authorization)
-Sistem membatasi akses fitur secara berlapis untuk menjamin keamanan aset data:
+### 🛡️ Autentikasi & Otorisasi Hak Akses (RBAC)
 * **Otentikasi (Siapa Anda):**
-  * **Register:** Enkripsi password menggunakan algoritma hash modern `generate_password_hash` sebelum disimpan ke database (tidak ada penyimpanan plain-text password).
-  * **Login:** Autentikasi dengan pencocokan hash password `check_password_hash` dan pengelolaan sesi oleh `Flask-Login` via `login_user`.
-  * **Logout:** Mengakhiri sesi pengguna aktif dan menghancurkan cookie sesi dengan perintah `logout_user()`, lalu mengembalikan pengguna ke landing page.
-  * **Sesi Aktif (@login_required):** Mencegah pengguna tidak sah melihat halaman dalam sistem jika belum terotentikasi.
-* **Otorisasi (Apa yang Boleh Anda Lakukan):**
-  * Membagi hak akses sistem menjadi 2 level: **Administrator** (Admin) dan **Staff**.
-  * Pengguna non-admin (Staff) secara otomatis dibatasi dan tidak dapat mengakses rute manajemen pengguna (users CRUD) dan log audit log trail penuh. Upaya bypass URL manual akan langsung menghasilkan status HTTP **403 Forbidden**.
+  * Password pengguna dienkripsi dengan hash aman menggunakan algoritma `pbkdf2:sha256` lewat modul `werkzeug.security`.
+  * Login dikelola aman oleh `Flask-Login` via `login_user()`.
+  * Pembatasan akses halaman non-login diimplementasikan menggunakan decorator `@login_required`.
+* **Otorisasi / RBAC (Apa Hak Anda):**
+  * Akun dibagi menjadi peran **Administrator (Admin)** dan **Staff**.
+  * Akun Staff dibatasi dari mengakses halaman log audit trail penuh dan manajemen pengguna. Upaya akses URL ilegal secara sengaja akan dihadang dan memicu HTTP **403 Forbidden**.
 
 ---
 
-## 🚀 Panduan Menjalankan Project
+## 🚀 Panduan Memulai Aplikasi
 
-### Langkah 1: Kloning & Persiapan Dependensi
-Pastikan Python telah terpasang di komputer Anda. Buka terminal di folder project, lalu jalankan perintah instalasi dependensi:
+### 1. Instalasi Dependensi
+Jalankan perintah berikut di folder proyek untuk menginstal modul Python:
 ```bash
 pip install -r requirements.txt
 ```
 
-### Langkah 2: Lakukan Seeding Database (Data Demo)
-Jalankan seeder database untuk otomatis membersihkan tabel dan membuat data suplai barang & riwayat mutasi yang melimpah secara otomatis:
+### 2. Isi Data Uji Coba (Seeding)
+Jalankan script seeder untuk membersihkan database lama dan mengisinya dengan data uji pergudangan yang melimpah secara otomatis:
 ```bash
 python seed_all.py
 ```
 
-### Langkah 3: Jalankan Server Aplikasi
-Mulai server Flask lokal:
+### 3. Jalankan Aplikasi
+Jalankan server lokal Flask:
 ```bash
 python app.py
 ```
-Buka browser Anda dan akses tautan **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**.
+Akses sistem di browser Anda melalui alamat **[http://127.0.0.1:5000/](http://127.0.0.1:5000/)**.
 
 ---
 
-## 👥 Tim Pengembang (Developer Team)
+## 👥 Pengembang Utama (Developer)
 
-Sistem ZenithStock Enterprise dirancang, dianalisis, dan dikembangkan secara mandiri oleh:
+Sistem informasi logistik ZenithStock Enterprise dirancang dan dikembangkan sepenuhnya oleh:
 
 * **Developer:** Gempur Budi Anarki

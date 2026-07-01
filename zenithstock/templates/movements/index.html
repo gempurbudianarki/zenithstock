@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Mutasi & Riwayat Stok – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+</svg>
+Mutasi & Audit Trail
+{% endblock %}
+{% block breadcrumb %}Log Mutasi Stok{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ searchQ: '{{ search_query or '' }}', typeFilter: '{{ type_filter or '' }}' }">
+
+    <!-- ─── MOVEMENT STATS ─── -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Total Log Transaksi</div>
+                <div class="stat-value">{{ total_log }}</div>
+                <div class="stat-sub">Semua catatan mutasi</div>
+            </div>
+            <div class="stat-icon cyan">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Barang Masuk</div>
+                <div class="stat-value green">{{ total_masuk }}</div>
+                <div class="stat-sub">Log penambahan stok</div>
+            </div>
+            <div class="stat-icon green">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                </svg>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Barang Keluar</div>
+                <div class="stat-value red">{{ total_keluar }}</div>
+                <div class="stat-sub">Log pengurangan stok</div>
+            </div>
+            <div class="stat-icon red">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─── TABLE PANEL ─── -->
+    <div class="zs-panel">
+        <!-- Controls -->
+        <div class="controls-bar">
+            <div class="left">
+                <!-- Search -->
+                <div class="search-input-wrap" style="flex:1;min-width:220px;max-width:360px;">
+                    <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                        type="search"
+                        id="movements-search"
+                        name="q"
+                        x-model="searchQ"
+                        placeholder="Cari SKU, produk, atau memo..."
+                        class="form-control"
+                        hx-get="{{ url_for('movements.index') }}"
+                        hx-trigger="keyup changed delay:300ms, search"
+                        hx-target="#movements-table-container"
+                        hx-include="[name='type']"
+                        hx-push-url="true"
+                        value="{{ search_query or '' }}"
+                    >
+                </div>
+
+                <!-- Tipe filter -->
+                <div class="select-wrapper filter-select">
+                    <select
+                        name="type"
+                        id="type-filter"
+                        class="form-control"
+                        x-model="typeFilter"
+                        hx-get="{{ url_for('movements.index') }}"
+                        hx-target="#movements-table-container"
+                        hx-include="[name='q']"
+                        hx-trigger="change"
+                        hx-push-url="true"
+                    >
+                        <option value="">Semua Tipe</option>
+                        <option value="MASUK" {% if type_filter == 'MASUK' %}selected{% endif %}>Barang Masuk</option>
+                        <option value="KELUAR" {% if type_filter == 'KELUAR' %}selected{% endif %}>Barang Keluar</option>
+                        <option value="PENYESUAIAN" {% if type_filter == 'PENYESUAIAN' %}selected{% endif %}>Penyesuaian</option>
+                    </select>
+                </div>
+
+                <button 
+                    x-show="searchQ !== '' || typeFilter !== ''"
+                    @click="searchQ = ''; typeFilter = ''; htmx.ajax('GET', '{{ url_for('movements.index') }}', {target: '#movements-table-container', pushUrl: true})"
+                    type="button"
+                    class="btn btn-ghost btn-sm"
+                    style="color:var(--color-text-muted);"
+                >
+                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+            <div class="right">
+                <a href="{{ url_for('movements.create') }}" class="btn btn-primary" id="btn-record-movement">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Catat Transaksi
+                </a>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div id="movements-table-container" style="overflow-x:auto;">
+            {% include "movements/_table.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

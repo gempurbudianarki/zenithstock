@@ -1,0 +1,103 @@
+<table class="zs-table">
+    <thead>
+        <tr>
+            <th>SKU / Kode</th>
+            <th>Nama Barang</th>
+            <th class="hidden sm:table-cell">Kategori</th>
+            <th class="hidden md:table-cell">Lokasi Rak</th>
+            <th class="text-right" style="text-align:right;">Stok</th>
+            <th class="hidden sm:table-cell text-right" style="text-align:right;">Harga Satuan</th>
+            <th class="hidden md:table-cell text-right" style="text-align:right;">Nilai Stok</th>
+            <th class="hidden lg:table-cell">Pemasok</th>
+            <th style="text-align:center;">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if products %}
+            {% for product in products %}
+            <tr class="animate-fade-in">
+                <td class="td-mono">{{ product.sku }}</td>
+                <td class="td-primary">{{ product.nama_barang }}</td>
+                <td class="hidden sm:table-cell">
+                    <span class="badge slate">{{ product.kategori }}</span>
+                </td>
+                <td class="hidden md:table-cell" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ product.lokasi_rak or '—' }}</td>
+                <td style="text-align:right;">
+                    {% if product.stok == 0 %}
+                    <span class="badge red"><span class="badge-dot"></span>Habis</span>
+                    {% elif product.stok < product.min_stok %}
+                    <span class="badge amber" title="Batas kritis: {{ product.min_stok }}">
+                        <span class="badge-dot"></span>{{ product.stok }} Kritis
+                    </span>
+                    {% else %}
+                    <span class="badge green"><span class="badge-dot"></span>{{ product.stok }}</span>
+                    {% endif %}
+                </td>
+                <td class="hidden sm:table-cell" style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-secondary);">
+                    Rp {{ "{:,.0f}".format(product.harga).replace(",", ".") }}
+                </td>
+                <td class="hidden md:table-cell" style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--zs-cyan-400);font-weight:600;">
+                    Rp {{ "{:,.0f}".format(product.stok * product.harga).replace(",", ".") }}
+                </td>
+                <td class="hidden lg:table-cell" style="font-size:0.8125rem;color:var(--color-text-muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    {{ product.supplier.nama if product.supplier else '—' }}
+                </td>
+                <td style="text-align:center;">
+                    <div style="display:inline-flex;align-items:center;gap:4px;">
+                        <!-- Catat Mutasi -->
+                        <a href="{{ url_for('movements.create', product_id=product.id) }}" 
+                           class="action-btn move"
+                           title="Catat Mutasi Stok">
+                            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        </a>
+
+                        <!-- Edit -->
+                        <a href="{{ url_for('dashboard.edit', product_id=product.id) }}" 
+                           class="action-btn edit"
+                           title="Ubah Detail Barang">
+                            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+
+                        <!-- Delete (Admin only) -->
+                        {% if current_user.is_admin() %}
+                        <form 
+                            hx-post="{{ url_for('dashboard.delete', product_id=product.id) }}"
+                            hx-target="#product-table-container"
+                            hx-include="[name='q'],[name='category']"
+                            hx-confirm="Hapus barang '{{ product.nama_barang }}' (SKU: {{ product.sku }})?\n\nSemua riwayat mutasi terkait akan ikut terhapus. Aksi ini tidak dapat dibatalkan."
+                            method="POST"
+                            style="display:inline;margin:0;"
+                        >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" 
+                                    class="action-btn delete"
+                                    title="Hapus Barang (Admin)">
+                                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="9">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v2" />
+                    </svg>
+                    <div class="empty-state-title">Tidak ada barang ditemukan</div>
+                    <div class="empty-state-desc">Coba ubah filter pencarian atau tambahkan barang baru ke sistem.</div>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>

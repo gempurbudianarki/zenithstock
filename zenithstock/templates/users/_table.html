@@ -1,0 +1,105 @@
+<table class="zs-table">
+    <thead>
+        <tr>
+            <th>Pengguna</th>
+            <th>Peran / Hak Akses</th>
+            <th style="text-align:right;">Transaksi Dicatat</th>
+            <th>Status</th>
+            <th style="text-align:center;">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if users %}
+            {% for u in users %}
+            <tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0e7490,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:800;color:#001a24;flex-shrink:0;{% if u.id == current_user.id %}outline:2px solid var(--zs-cyan-500);outline-offset:2px;{% endif %}">
+                            {{ u.username[0]|upper }}
+                        </div>
+                        <div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-text-primary);display:flex;align-items:center;gap:6px;">
+                                {{ u.username }}
+                                {% if u.id == current_user.id %}
+                                <span class="badge cyan" style="font-size:0.6rem;padding:1px 6px;">Anda</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--color-text-muted);">ID #{{ u.id }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    {% if u.role == 'admin' %}
+                    <span class="badge amber"><span class="badge-dot"></span>Administrator</span>
+                    {% else %}
+                    <span class="badge slate"><span class="badge-dot"></span>Staff</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right;font-family:var(--font-mono);font-weight:600;color:var(--color-text-secondary);">
+                    {{ user_stats.get(u.id, 0) }}
+                </td>
+                <td>
+                    <span class="badge green"><span class="badge-dot"></span>Aktif</span>
+                </td>
+                <td style="text-align:center;">
+                    <div style="display:inline-flex;align-items:center;gap:4px;">
+                        <!-- Edit / Reset Password -->
+                        <a href="{{ url_for('users.edit', user_id=u.id) }}" 
+                           class="action-btn edit" title="Ubah Peran / Reset Password">
+                            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+
+                        <!-- Toggle Role (tidak bisa untuk diri sendiri) -->
+                        {% if u.id != current_user.id %}
+                        <form hx-post="{{ url_for('users.toggle_role', user_id=u.id) }}"
+                              hx-target="#users-table-container"
+                              hx-confirm="Ubah peran '{{ u.username }}' dari {{ u.role.upper() }} ke {{ 'STAFF' if u.role == 'admin' else 'ADMIN' }}?"
+                              method="POST" style="display:inline;margin:0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="action-btn move" 
+                                    title="Toggle Peran ({{ 'Admin → Staff' if u.role == 'admin' else 'Staff → Admin' }})">
+                                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </button>
+                        </form>
+
+                        <!-- Delete -->
+                        <form hx-post="{{ url_for('users.delete', user_id=u.id) }}"
+                              hx-target="#users-table-container"
+                              hx-confirm="Hapus pengguna '{{ u.username }}'?\n\nLog transaksi yang sudah dicatat akan dipertahankan. Aksi ini tidak dapat dibatalkan."
+                              method="POST" style="display:inline;margin:0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="action-btn delete" title="Hapus Pengguna">
+                                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span style="width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;color:var(--color-text-muted);font-size:0.7rem;" title="Tidak bisa modifikasi akun sendiri">
+                            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </span>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="5">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <div class="empty-state-title">Tidak ada pengguna ditemukan</div>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>

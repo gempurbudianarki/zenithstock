@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Inventaris – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z" />
+</svg>
+Inventaris Barang
+{% endblock %}
+{% block breadcrumb %}Inventaris{% endblock %}
+
+{% block content %}
+<div class="space-y-6" x-data="{ searchQ: '{{ search_query or '' }}', catFilter: '{{ category_filter or '' }}' }">
+
+    <!-- ─── KPI METRICS ─── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Total SKU -->
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Total SKU</div>
+                <div class="stat-value">{{ total_products }}</div>
+                <div class="stat-sub">Jenis produk terdaftar</div>
+            </div>
+            <div class="stat-icon slate">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Valuasi Aset -->
+        <div class="stat-card" style="grid-column: span 2 / span 2;" data-kpi="valuation">
+            <div style="flex:1;">
+                <div class="stat-label">Total Valuasi Aset</div>
+                <div class="stat-value cyan" style="font-size:1.5rem;">
+                    Rp {{ "{:,.0f}".format(total_valuation).replace(",", ".") }}
+                </div>
+                <div class="stat-sub">Nilai inventaris × harga satuan</div>
+            </div>
+            <div class="stat-icon cyan glow-pulse">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M12 16v1M10 11h4" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Stok Kritis -->
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Stok Kritis</div>
+                <div class="stat-value {% if low_stock_count > 0 %}amber{% endif %}">{{ low_stock_count }}</div>
+                <div class="stat-sub">Produk di bawah batas minimum</div>
+            </div>
+            <div class="stat-icon {% if low_stock_count > 0 %}amber{% else %}slate{% endif %}">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Habis -->
+        {% if out_of_stock_count > 0 %}
+        <div class="stat-card" style="border-color:rgba(239,68,68,0.15);">
+            <div>
+                <div class="stat-label">Stok Habis</div>
+                <div class="stat-value red">{{ out_of_stock_count }}</div>
+                <div class="stat-sub">Produk dengan stok = 0</div>
+            </div>
+            <div class="stat-icon red">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+            </div>
+        </div>
+        {% else %}
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Volume Stok</div>
+                <div class="stat-value">{{ total_stock }}</div>
+                <div class="stat-sub">Total unit tersedia</div>
+            </div>
+            <div class="stat-icon green">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 17v-2a4 4 0 00-4-4H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ─── MAIN TABLE PANEL ─── -->
+    <div class="zs-panel">
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="left">
+                <!-- Search -->
+                <div class="search-input-wrap" style="flex:1;min-width:200px;max-width:360px;">
+                    <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input 
+                        type="search" 
+                        name="q"
+                        id="inventory-search"
+                        x-model="searchQ"
+                        placeholder="Cari SKU, nama, kategori, rak..."
+                        class="form-control"
+                        hx-get="{{ url_for('dashboard.index') }}"
+                        hx-trigger="keyup changed delay:300ms, search"
+                        hx-target="#product-table-container"
+                        hx-include="[name='category']"
+                        hx-push-url="true"
+                        aria-label="Cari produk"
+                        value="{{ search_query or '' }}"
+                    >
+                </div>
+
+                <!-- Category filter -->
+                <div class="select-wrapper filter-select">
+                    <select 
+                        name="category"
+                        id="category-filter"
+                        class="form-control"
+                        x-model="catFilter"
+                        hx-get="{{ url_for('dashboard.index') }}"
+                        hx-target="#product-table-container"
+                        hx-include="[name='q']"
+                        hx-trigger="change"
+                        hx-push-url="true"
+                        aria-label="Filter kategori"
+                    >
+                        <option value="">Semua Kategori</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == category_filter %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Reset filter pill -->
+                <button 
+                    x-show="searchQ !== '' || catFilter !== ''"
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    @click="searchQ = ''; catFilter = ''; htmx.ajax('GET', '{{ url_for('dashboard.index') }}', {target: '#product-table-container', pushUrl: true})"
+                    type="button"
+                    class="btn btn-ghost btn-sm"
+                    style="gap:6px;color:var(--color-text-muted);"
+                    aria-label="Reset filter"
+                >
+                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Reset
+                </button>
+            </div>
+
+            <div class="right">
+                <a href="{{ url_for('dashboard.create') }}" class="btn btn-primary" id="btn-add-product">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Tambah Barang
+                </a>
+            </div>
+        </div>
+
+        <!-- Table (HTMX target) -->
+        <div id="product-table-container" style="overflow-x:auto;">
+            {% include "dashboard/_table.html" %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

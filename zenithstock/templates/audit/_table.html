@@ -1,0 +1,104 @@
+<table class="zs-table">
+    <thead>
+        <tr>
+            <th class="hidden sm:table-cell" style="width:36px;">#</th>
+            <th>Tanggal & Waktu</th>
+            <th>SKU</th>
+            <th>Nama Produk</th>
+            <th>Tipe</th>
+            <th style="text-align:right;">Qty</th>
+            <th class="hidden md:table-cell">Pengguna</th>
+            <th class="hidden sm:table-cell">Keterangan</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if movements %}
+            {% for m in movements %}
+            <tr>
+                <td class="hidden sm:table-cell" style="color:var(--color-text-muted);font-size:0.75rem;font-weight:600;">{{ pagination.total - ((page-1) * 30 + loop.index0) }}</td>
+                <td style="white-space:nowrap;">
+                    <div style="font-size:0.8125rem;font-weight:600;color:var(--color-text-secondary);font-family:var(--font-mono);">{{ m.created_at.strftime('%d %b %Y') }}</div>
+                    <div style="font-size:0.7rem;color:var(--color-text-muted);font-family:var(--font-mono);">{{ m.created_at.strftime('%H:%M:%S') }}</div>
+                </td>
+                <td class="td-mono">{{ m.product.sku }}</td>
+                <td class="td-primary" style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ m.product.nama_barang }}">
+                    {{ m.product.nama_barang }}
+                </td>
+                <td>
+                    {% if m.tipe == 'MASUK' %}
+                    <span class="badge green"><span class="badge-dot"></span>MASUK</span>
+                    {% elif m.tipe == 'KELUAR' %}
+                    <span class="badge red"><span class="badge-dot"></span>KELUAR</span>
+                    {% else %}
+                    <span class="badge indigo"><span class="badge-dot"></span>SESUAI</span>
+                    {% endif %}
+                </td>
+                <td style="text-align:right;font-family:var(--font-mono);font-weight:700;font-size:0.9rem;">
+                    {% if m.jumlah > 0 %}
+                    <span style="color:#34d399;">+{{ m.jumlah }}</span>
+                    {% elif m.jumlah < 0 %}
+                    <span style="color:#f87171;">{{ m.jumlah }}</span>
+                    {% else %}
+                    <span style="color:var(--color-text-muted);">0</span>
+                    {% endif %}
+                </td>
+                <td class="hidden md:table-cell">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#0e7490,#22d3ee);display:inline-flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:800;color:#001a24;flex-shrink:0;">
+                            {{ m.user.username[0]|upper }}
+                        </span>
+                        <span style="font-size:0.8125rem;color:var(--color-text-secondary);">{{ m.user.username }}</span>
+                        {% if m.user.is_admin() %}
+                        <span class="badge cyan" style="font-size:0.6rem;padding:1px 6px;">ADM</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="hidden sm:table-cell" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.8rem;color:var(--color-text-muted);" title="{{ m.keterangan }}">
+                    {{ m.keterangan or '—' }}
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="8">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div class="empty-state-title">Tidak ada log audit ditemukan</div>
+                    <div class="empty-state-desc">Coba ubah filter pencarian atau periode tanggal.</div>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<!-- Pagination -->
+{% if pagination and pagination.pages > 1 %}
+<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-top:1px solid var(--color-border);font-size:0.8rem;color:var(--color-text-muted);">
+    <span>Menampilkan {{ movements|length }} dari {{ pagination.total }} entri (Halaman {{ pagination.page }}/{{ pagination.pages }})</span>
+    <div style="display:flex;gap:4px;">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('audit.index', page=pagination.prev_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}" 
+           class="btn btn-secondary btn-sm">‹ Prev</a>
+        {% endif %}
+        {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            <a href="{{ url_for('audit.index', page=p, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}"
+               class="btn btn-sm {% if p == pagination.page %}btn-primary{% else %}btn-secondary{% endif %}">{{ p }}</a>
+            {% else %}
+            <span style="padding:6px 8px;color:var(--color-text-muted);">…</span>
+            {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+        <a href="{{ url_for('audit.index', page=pagination.next_num, q=q, type=tipe_f, user_id=user_f, date_from=date_from, date_to=date_to) }}" 
+           class="btn btn-secondary btn-sm">Next ›</a>
+        {% endif %}
+    </div>
+</div>
+{% elif movements %}
+<div style="padding:12px 20px;border-top:1px solid var(--color-border);font-size:0.8rem;color:var(--color-text-muted);">
+    Menampilkan {{ movements|length }} entri
+</div>
+{% endif %}

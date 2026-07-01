@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenithStock Enterprise – Sistem Manajemen Inventaris Industri</title>
+    <meta name="description" content="ZenithStock Enterprise — Platform manajemen inventaris industri dengan audit trail, RBAC, dan valuasi aset real-time.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ───── CSS RESET & BASE ───── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: #020813;
+            color: #f0f9ff;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ───── PARALLAX BACKGROUND PHOTO ───── */
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("{{ url_for('static', filename='img/background.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transform: translateZ(0);
+        }
+
+        /* Light overlay allowing the warehouse picture to be seen clearly */
+        .page-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                linear-gradient(to bottom,
+                    rgba(2, 8, 19, 0.25) 0%,
+                    rgba(2, 8, 19, 0.55) 40%,
+                    rgba(2, 8, 19, 0.85) 75%,
+                    rgba(2, 8, 19, 0.98) 100%
+                );
+        }
+
+        /* ───── HEADER BAR (STICKY GLASS) ───── */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(2, 8, 19, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            background: rgba(2, 8, 19, 0.85);
+            height: 60px;
+            border-bottom: 1px solid rgba(34, 211, 238, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand img {
+            height: 38px;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.45));
+        }
+
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #f0f9ff;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text span {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: #22d3ee;
+        }
+
+        .btn-nav {
+            display: inline-flex;
+            align-items: center;
+            padding: 9px 20px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav.ghost {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #f0f9ff;
+        }
+
+        .btn-nav.ghost:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(34, 211, 238, 0.35);
+            color: #22d3ee;
+        }
+
+        .btn-nav.primary {
+            background: linear-gradient(135deg, #0891b2, #22d3ee);
+            color: #001a24;
+            box-shadow: 0 4px 18px rgba(34, 211, 238, 0.3);
+        }
+
+        .btn-nav.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(34, 211, 238, 0.45);
+        }
+
+        /* ───── WRAPPER ───── */
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+        }
+
+        /* ───── SECTION 1: HERO (Minimal, centered logo, background visible) ───── */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 24px 60px;
+        }
+
+        .hero-logo {
+            margin-bottom: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-logo img {
+            width: 160px;
+            height: 160px;
+            object-fit: contain;
+            filter: 
+                drop-shadow(0 0 40px rgba(34, 211, 238, 0.5)) 
+                drop-shadow(0 0 80px rgba(34, 211, 238, 0.2));
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 18px rgba(2, 8, 19, 0.98), 0 2px 4px rgba(2, 8, 19, 0.98);
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: clamp(0.95rem, 1.8vw, 1.125rem);
+            font-weight: 500;
+            color: #f1f5f9;
+            max-width: 650px;
+            line-height: 1.65;
+            margin-bottom: 40px;
+            text-shadow: 0 3px 12px rgba(2, 8, 19, 0.98), 0 1px 3px rgba(2, 8, 19, 0.98);
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+
+        .btn-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 0.9375rem;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-cta.primary {
+            background: linear-gradient(135deg, #0891b2, #22d3ee);
+            color: #001a24;
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.35);
+        }
+
+        .btn-cta.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.5);
+        }
+
+        .btn-cta.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f0f9ff;
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-cta.secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(34, 211, 238, 0.35);
+            color: #22d3ee;
+            transform: translateY(-2px);
+        }
+
+        /* Smooth animated scroll indicator */
+        .scroll-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .scroll-indicator:hover {
+            color: #22d3ee;
+        }
+
+        .scroll-indicator svg {
+            width: 20px;
+            height: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        /* ───── COMMON SCROLL SECTIONS ───── */
+        .content-section {
+            min-height: 100vh;
+            padding: 100px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: #22d3ee;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            color: #f0f9ff;
+            letter-spacing: -0.02em;
+        }
+
+        /* ───── SECTION 2: FITUR (GRID) ───── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: rgba(7, 17, 31, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(34, 211, 238, 0.1);
+            border-radius: 18px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(34, 211, 238, 0.3);
+            background: rgba(7, 17, 31, 0.85);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .feat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feat-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #f0f9ff;
+        }
+
+        .feat-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* ───── FOOTER (Clean design with links to separate pages) ───── */
+        .footer {
+            background: rgba(2, 8, 19, 0.95);
+            border-top: 1px solid rgba(34, 211, 238, 0.08);
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #f0f9ff;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .footer-brand img {
+            height: 32px;
+        }
+
+        .footer-brand span span {
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .footer-nav {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link-btn {
+            color: #64748b;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+
+        .footer-link-btn:hover {
+            color: #22d3ee;
+        }
+
+        .footer-bottom {
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+
+        .footer-bottom strong {
+            color: rgba(34, 211, 238, 0.8);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 6px #10b981;
+            display: inline-block;
+            animation: pulse-glow 2s infinite;
+        }
+
+        /* ───── ANIMATIONS ───── */
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        /* ───── MOBILE RESPONSIVE MEDIA QUERIES ───── */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+                height: 60px;
+            }
+            .brand-text {
+                font-size: 1.1rem;
+            }
+            .nav-actions {
+                gap: 8px;
+            }
+            .btn-nav {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            .content-section {
+                padding: 60px 16px;
+                min-height: auto;
+            }
+            .section-header {
+                margin-bottom: 30px;
+            }
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                gap: 16px;
+            }
+            .feature-card {
+                padding: 20px;
+            }
+            .footer {
+                padding: 30px 16px;
+            }
+            .footer-wrap {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .footer-nav {
+                justify-content: center;
+                gap: 12px 16px;
+            }
+            .hero-section {
+                padding: 100px 16px 40px;
+                min-height: calc(100vh - 60px);
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-desc {
+                margin-bottom: 24px;
+            }
+            .hero-cta {
+                gap: 12px;
+                margin-bottom: 30px;
+            }
+            .btn-cta {
+                padding: 12px 24px;
+                font-size: 0.875rem;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Parallax Fixed Background Photo -->
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <!-- Header Navigation -->
+    <header class="header" id="mainHeader">
+        <a href="#hero" class="brand">
+            <span class="brand-text">Zenith<span>Stock</span></span>
+        </a>
+        <nav class="nav-actions">
+            <a href="{{ url_for('auth.login') }}" class="btn-nav ghost" id="btn-nav-login">Masuk</a>
+            <a href="{{ url_for('auth.register') }}" class="btn-nav primary" id="btn-nav-register">Daftar</a>
+        </nav>
+    </header>
+
+    <!-- Content Sections Wrapper -->
+    <div class="wrapper">
+
+        <!-- ───── SECTION 1: HERO (Clean, Center Logo, Minimal content) ───── -->
+        <section class="hero-section" id="hero">
+            <div class="hero-logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="ZenithStock Logo Centered" loading="eager">
+            </div>
+            
+            <h1 class="hero-title">Zenith<span>Stock</span> Enterprise</h1>
+            <p class="hero-desc">Sistem Manajemen Inventaris Barang Modern & Skala Industri. Lacak pergerakan stok secara real-time dengan akurasi dan integritas data terbaik.</p>
+
+            <div class="hero-cta">
+                <a href="{{ url_for('auth.login') }}" class="btn-cta primary" id="btn-hero-login">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                    </svg>
+                    Masuk ke Sistem
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn-cta secondary" id="btn-hero-register">
+                    Registrasi Akun
+                </a>
+            </div>
+
+            <a href="#features" class="scroll-indicator">
+                <span>Pelajari Fitur</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </a>
+        </section>
+
+        <!-- ───── SECTION 2: FITUR (GRID) ───── -->
+        <section class="content-section" id="features">
+            <div class="section-header">
+                <span class="section-tag">Efisiensi Operasional</span>
+                <h2 class="section-title">Fitur Unggulan Sistem</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feat-icon-box" style="background: rgba(34, 211, 238, 0.1); color: #22d3ee;">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Dashboard Analitik</h3>
+                    <p class="feat-desc">Monitoring visual pergerakan stok barang, status stok kritis, total SKU aktif, dan diagram kesehatan inventaris secara instan.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feat-icon-box" style="background: rgba(129, 140, 248, 0.1); color: #a5b4fc;">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Log Audit Trail</h3>
+                    <p class="feat-desc">Semua aktivitas dan mutasi stok barang terdokumentasi lengkap dan permanen, memberikan rekam jejak akuntabilitas tanpa celah.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feat-icon-box" style="background: rgba(52, 211, 153, 0.1); color: #34d399;">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">RBAC Multi-Role</h3>
+                    <p class="feat-desc">Kontrol akses berbasis peran (Admin & Staff) untuk mencegah perubahan data oleh pihak yang tidak memiliki hak akses khusus.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feat-icon-box" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24;">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <h3 class="feat-title">Manajemen Vendor</h3>
+                    <p class="feat-desc">Pengelolaan mitra pemasok/supplier untuk mengoptimalkan ketepatan rantai pasokan logistik saat melakukan restock barang.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ───── FOOTER ───── -->
+    <footer class="footer">
+        <div class="footer-wrap">
+            <a href="#hero" class="footer-brand">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="ZenithStock Logo footer">
+                <span>Zenith<span>Stock</span></span>
+            </a>
+            
+            <div class="footer-nav">
+                <a href="{{ url_for('auth.filosofi_logo') }}" class="footer-link-btn">Filosofi Logo</a>
+                <a href="{{ url_for('auth.kebijakan_privasi') }}" class="footer-link-btn">Kebijakan Privasi</a>
+                <a href="{{ url_for('auth.tentang_aplikasi') }}" class="footer-link-btn">Tentang Kami</a>
+                <a href="{{ url_for('auth.login') }}" class="footer-link-btn">Masuk</a>
+                <a href="{{ url_for('auth.register') }}" class="footer-link-btn">Daftar</a>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <span>&copy; 2026 <strong>ZenithStock Enterprise</strong>. Hak Cipta Dilindungi</span>
+        </div>
+    </footer>
+
+    <!-- JS Scripts for Header Scroll -->
+    <script>
+        // Adjust header design upon scrolling down
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 40) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

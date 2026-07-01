@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Ubah Data Barang – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+</svg>
+Ubah Barang
+{% endblock %}
+{% block breadcrumb %}Inventaris › {{ product.sku }}{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;margin:0 auto;">
+    <div class="zs-panel" style="padding:32px;">
+
+        <!-- Panel header with SKU badge -->
+        <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--color-border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div>
+                <h2 style="font-size:1.125rem;font-weight:700;color:var(--color-text-primary);margin:0 0 4px;">Ubah Data Produk</h2>
+                <p style="font-size:0.8125rem;color:var(--color-text-muted);margin:0;">Perubahan jumlah stok akan otomatis dicatat sebagai log Penyesuaian di Audit Trail.</p>
+            </div>
+            <span class="badge cyan" style="font-size:0.8125rem;padding:5px 12px;">
+                <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                {{ product.sku }}
+            </span>
+        </div>
+
+        <form method="POST" action="{{ url_for('dashboard.edit', product_id=product.id) }}" novalidate>
+            {{ form.csrf_token }}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                <!-- SKU -->
+                <div>
+                    <label class="form-label" for="sku">SKU / Kode Barang <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.sku(id="sku", class="form-control mono", style="text-transform:uppercase;") }}
+                    {% if form.sku.errors %}{% for e in form.sku.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Kategori -->
+                <div>
+                    <label class="form-label" for="kategori">Kategori <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.kategori(id="kategori", class="form-control") }}
+                    {% if form.kategori.errors %}{% for e in form.kategori.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Nama Barang -->
+                <div style="grid-column:1/-1;">
+                    <label class="form-label" for="nama_barang">Nama Barang Lengkap <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.nama_barang(id="nama_barang", class="form-control") }}
+                    {% if form.nama_barang.errors %}{% for e in form.nama_barang.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Supplier -->
+                <div style="grid-column:1/-1;">
+                    <label class="form-label" for="supplier_id">Pemasok / Vendor</label>
+                    <div class="select-wrapper">
+                        {{ form.supplier_id(id="supplier_id", class="form-control") }}
+                    </div>
+                </div>
+
+                <!-- Lokasi Rak -->
+                <div style="grid-column:1/-1;">
+                    <label class="form-label" for="lokasi_rak">Lokasi Rak / Gudang</label>
+                    {{ form.lokasi_rak(id="lokasi_rak", class="form-control mono") }}
+                </div>
+
+                <!-- Stok (current displayed) -->
+                <div>
+                    <label class="form-label" for="stok">Jumlah Stok <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.stok(id="stok", type="number", class="form-control", min="0") }}
+                    <div class="form-helper">Stok saat ini: <strong style="color:var(--color-text-primary);">{{ product.stok }}</strong>. Perubahan akan tercatat otomatis.</div>
+                    {% if form.stok.errors %}{% for e in form.stok.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Batas Kritis -->
+                <div>
+                    <label class="form-label" for="min_stok">Batas Stok Kritis <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.min_stok(id="min_stok", type="number", class="form-control", min="0") }}
+                    {% if form.min_stok.errors %}{% for e in form.min_stok.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Harga -->
+                <div style="grid-column:1/-1;">
+                    <label class="form-label" for="harga">Harga Satuan (Rp) <span style="color:var(--color-danger);">*</span></label>
+                    <div class="input-group">
+                        <span class="input-prefix" style="font-weight:600;">Rp</span>
+                        {{ form.harga(id="harga", type="number", class="form-control mono", min="0") }}
+                    </div>
+                    {% if form.harga.errors %}{% for e in form.harga.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:28px;padding-top:20px;border-top:1px solid var(--color-border);">
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

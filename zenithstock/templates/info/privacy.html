@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kebijakan Privasi – ZenithStock Enterprise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: #020813;
+            color: #f0f9ff;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ───── BACKDROP PHOTO ───── */
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("{{ url_for('static', filename='img/background.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transform: translateZ(0);
+        }
+
+        .page-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(2, 8, 19, 0.85) 0%, rgba(2, 8, 19, 0.95) 100%);
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            min-height: 100vh;
+            justify-content: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #22d3ee;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            align-self: flex-start;
+            transition: transform 0.2s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Glass Panel Card */
+        .info-panel {
+            background: rgba(7, 17, 31, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 24px;
+        }
+
+        .panel-header svg {
+            width: 50px;
+            height: 50px;
+            color: #22d3ee;
+        }
+
+        .panel-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #f0f9ff;
+            letter-spacing: -0.02em;
+        }
+
+        .panel-title p {
+            font-size: 0.85rem;
+            color: #22d3ee;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .policy-intro {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #94a3b8;
+        }
+
+        .policy-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .policy-item h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f0f9ff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .policy-item h2 svg {
+            width: 20px;
+            height: 20px;
+            color: #22d3ee;
+        }
+
+        .policy-item p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.65;
+        }
+
+        .footer-action {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0891b2, #22d3ee);
+            color: #001a24;
+            font-size: 0.9375rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <div class="container">
+        <a href="{{ url_for('auth.welcome') }}" class="back-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Kembali ke Beranda
+        </a>
+
+        <div class="info-panel">
+            <div class="panel-header">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <div class="panel-title">
+                    <h1>Kebijakan Privasi & Keamanan</h1>
+                    <p>Perlindungan Data ZenithStock</p>
+                </div>
+            </div>
+
+            <p class="policy-intro">
+                Keamanan dan privasi data operasional inventaris Anda merupakan prioritas tertinggi kami. Di bawah ini adalah komitmen perlindungan yang kami terapkan di ZenithStock:
+            </p>
+
+            <div class="policy-sections">
+                <div class="policy-item">
+                    <h2>
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        1. Enkripsi Password Kriptografi (Bcrypt)
+                    </h2>
+                    <p>Kata sandi seluruh pengguna (Admin & Staff) dikonversi menjadi hash unik satu arah menggunakan algoritma Bcrypt tingkat industri. Kami tidak menyimpan password teks polos demi mencegah pencurian kredensial akun.</p>
+                </div>
+
+                <div class="policy-item">
+                    <h2>
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        2. Validasi Integritas Data & Anti-Duplikasi
+                    </h2>
+                    <p>Sistem menerapkan validasi tiga lapis (Form input, Controller, dan Database Unique Constraints) untuk memblokir pendaftaran kode barang (SKU) yang sama secara tidak sengaja, menjaga keakuratan neraca inventaris Anda.</p>
+                </div>
+
+                <div class="policy-item">
+                    <h2>
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        3. Proteksi Session & Otorisasi Rute
+                    </h2>
+                    <p>Seluruh endpoint internal (Dashboard, Pemasok, Mutasi, Pengguna, Analitik, Audit) dilindungi dengan Middleware Otorisasi. Sesi pengguna akan langsung dihancurkan seketika saat melakukan logout atau mendeteksi aktivitas mencurigakan.</p>
+                </div>
+
+                <div class="policy-item">
+                    <h2>
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        4. Log Audit Trail Permanen
+                    </h2>
+                    <p>Setiap mutasi barang dicatat permanen dalam tabel log database lengkap dengan identitas pengguna pencatat. Log audit trail tidak dapat dimodifikasi atau dihapus oleh siapapun guna menjamin transparansi akuntansi organisasi.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-action">
+            <a href="{{ url_for('auth.welcome') }}" class="btn-home">Kembali ke Beranda</a>
+        </div>
+    </div>
+
+</body>
+</html>

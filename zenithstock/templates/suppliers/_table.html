@@ -1,0 +1,68 @@
+<table class="zs-table">
+    <thead>
+        <tr>
+            <th>Nama Perusahaan / Vendor</th>
+            <th>Kontak PIC</th>
+            <th>Nomor Telepon</th>
+            <th class="hidden sm:table-cell">Alamat</th>
+            <th style="text-align:center;">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if suppliers %}
+            {% for supplier in suppliers %}
+            <tr>
+                <td>
+                    <div style="font-weight:700;color:var(--color-text-primary);font-size:0.9rem;">{{ supplier.nama }}</div>
+                </td>
+                <td style="color:var(--color-text-secondary);">{{ supplier.kontak or '—' }}</td>
+                <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);">{{ supplier.telepon or '—' }}</td>
+                <td class="hidden sm:table-cell" style="color:var(--color-text-muted);font-size:0.8125rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ supplier.alamat }}">
+                    {{ supplier.alamat or '—' }}
+                </td>
+                <td style="text-align:center;">
+                    <div style="display:inline-flex;align-items:center;gap:4px;">
+                        <!-- Edit -->
+                        <a href="{{ url_for('suppliers.edit', supplier_id=supplier.id) }}" 
+                           class="action-btn edit" 
+                           title="Ubah Data Supplier">
+                            <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </a>
+                        <!-- Delete (Admin only) -->
+                        {% if current_user.is_admin() %}
+                        <form 
+                            hx-post="{{ url_for('suppliers.delete', supplier_id=supplier.id) }}?q={{ search_query or '' }}"
+                            hx-target="#supplier-table-container"
+                            hx-confirm="Hapus supplier '{{ supplier.nama }}'?\n\nProduk yang terhubung dengan supplier ini akan kehilangan referensi vendor."
+                            method="POST"
+                            style="display:inline;margin:0;"
+                        >
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="action-btn delete" title="Hapus Supplier (Admin)">
+                                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="5">
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" />
+                    </svg>
+                    <div class="empty-state-title">Belum ada pemasok terdaftar</div>
+                    <div class="empty-state-desc">Tambahkan vendor/pemasok pertama untuk sistem pengadaan barang.</div>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>

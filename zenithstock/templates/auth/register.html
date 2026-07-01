@@ -1,0 +1,129 @@
+{% if current_user.is_authenticated %}
+{% extends "base.html" %}
+{% set in_app = true %}
+{% else %}
+{% extends "auth/base_auth.html" %}
+{% set in_app = false %}
+{% endif %}
+
+{% block title %}Tambah Pengguna – ZenithStock Enterprise{% endblock %}
+{% block auth_subtitle %}Buat akun baru untuk akses sistem{% endblock %}
+{% block header_title %}
+{% if in_app %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+</svg>
+Tambah Pengguna Baru
+{% endif %}
+{% endblock %}
+{% block breadcrumb %}Administrasi › Tambah Pengguna{% endblock %}
+
+{% block content %}
+<div {% if in_app %}style="max-width:520px;margin:0 auto;"{% endif %}>
+    {% if in_app %}
+    <div class="zs-panel" style="padding:32px;">
+        <div style="margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--color-border);">
+            <h2 style="font-size:1.0625rem;font-weight:700;color:var(--color-text-primary);margin:0 0 5px;">Formulir Registrasi Akun</h2>
+            <p style="font-size:0.8rem;color:var(--color-text-muted);margin:0;">Akun baru akan langsung aktif setelah disimpan.</p>
+        </div>
+    {% endif %}
+
+    {% if in_app %}
+    {# Flash messages for in-app context #}
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+        {{ form.csrf_token }}
+
+        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:24px;">
+
+            <!-- Username -->
+            <div>
+                <label class="form-label" for="username">Username <span style="color:var(--color-danger);">*</span></label>
+                <div class="input-group">
+                    <span class="input-prefix">
+                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </span>
+                    {{ form.username(id="username", class="form-control", placeholder="Min. 4 karakter, unik", autocomplete="username") }}
+                </div>
+                {% if form.username.errors %}{% for e in form.username.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+            </div>
+
+            <!-- Role -->
+            <div>
+                <label class="form-label" for="role">Hak Akses / Peran <span style="color:var(--color-danger);">*</span></label>
+                <div class="select-wrapper">
+                    {{ form.role(id="role", class="form-control") }}
+                </div>
+                <div class="form-helper">Admin: akses penuh. Staff: operasional saja (tambah/ubah, tidak bisa hapus).</div>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <label class="form-label" for="password">Password <span style="color:var(--color-danger);">*</span></label>
+                <div class="input-group" x-data="{ show: false }">
+                    <span class="input-prefix">
+                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </span>
+                    {{ form.password(id="password", class="form-control", placeholder="Min. 6 karakter", autocomplete="new-password", **{":type": "show ? 'text' : 'password'"}) }}
+                    <button type="button" class="input-suffix" @click="show=!show" style="pointer-events:all;cursor:pointer;background:none;border:none;padding:0;color:var(--color-text-muted);" aria-label="Toggle visibilitas">
+                        <svg x-show="!show" style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <svg x-show="show" style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                    </button>
+                </div>
+                {% if form.password.errors %}{% for e in form.password.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+                <label class="form-label" for="confirm_password">Konfirmasi Password <span style="color:var(--color-danger);">*</span></label>
+                <div class="input-group">
+                    <span class="input-prefix">
+                        <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </span>
+                    {{ form.confirm_password(id="confirm_password", class="form-control", placeholder="Ulangi password", autocomplete="new-password") }}
+                </div>
+                {% if form.confirm_password.errors %}{% for e in form.confirm_password.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+            </div>
+        </div>
+
+        {% if in_app %}
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-top:16px;border-top:1px solid var(--color-border);">
+            <a href="{{ url_for('users.index') }}" class="btn btn-secondary">Batal</a>
+            <button type="submit" class="btn btn-primary" id="btn-register">
+                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Simpan Pengguna
+            </button>
+        </div>
+        {% else %}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;font-size:0.9375rem;" id="btn-register">
+            <svg style="width:16px;height:16px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Buat Akun
+        </button>
+
+        <div style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--color-text-muted);">
+            Sudah memiliki akun?
+            <a href="{{ url_for('auth.login') }}" style="color:var(--zs-cyan-400);font-weight:600;text-decoration:none;">Masuk di sini</a>
+        </div>
+        {% endif %}
+    </form>
+
+    {% if in_app %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

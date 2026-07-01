@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tentang Kami – ZenithStock Enterprise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: #020813;
+            color: #f0f9ff;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ───── BACKDROP PHOTO ───── */
+        .page-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: url("{{ url_for('static', filename='img/background.png') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transform: translateZ(0);
+        }
+
+        .page-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(2, 8, 19, 0.85) 0%, rgba(2, 8, 19, 0.95) 100%);
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            min-height: 100vh;
+            justify-content: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #22d3ee;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            align-self: flex-start;
+            transition: transform 0.2s ease;
+        }
+
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+
+        .back-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Glass Panel Card */
+        .info-panel {
+            background: rgba(7, 17, 31, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(34, 211, 238, 0.15);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 24px;
+        }
+
+        .panel-header svg {
+            width: 50px;
+            height: 50px;
+            color: #22d3ee;
+        }
+
+        .panel-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #f0f9ff;
+            letter-spacing: -0.02em;
+        }
+
+        .panel-title p {
+            font-size: 0.85rem;
+            color: #22d3ee;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .about-text {
+            font-size: 1rem;
+            color: #94a3b8;
+            line-height: 1.7;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tech-box h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f0f9ff;
+            margin-bottom: 14px;
+        }
+
+        .tech-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .tech-list li {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            color: #22d3ee;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tech-list li span {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .footer-action {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 36px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0891b2, #22d3ee);
+            color: #001a24;
+            font-size: 0.9375rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.35);
+            transition: all 0.25s ease;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-bg" aria-hidden="true"></div>
+
+    <div class="container">
+        <a href="{{ url_for('auth.welcome') }}" class="back-link">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Kembali ke Beranda
+        </a>
+
+        <div class="info-panel">
+            <div class="panel-header">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="panel-title">
+                    <h1>Tentang ZenithStock</h1>
+                    <p>Mengenal Sistem Inventaris Kami</p>
+                </div>
+            </div>
+
+            <div class="about-text">
+                <p>
+                    <strong>ZenithStock Enterprise</strong> merupakan sistem informasi manajemen logistik pergudangan profesional tingkat industri. Kami dikembangkan dengan komitmen penuh untuk memecahkan isu-isu kritis dalam rantai pasok seperti inkonsistensi stok, hilangnya riwayat mutasi barang, serta kelambatan akses data.
+                </p>
+                <p>
+                    Fokus kami adalah menyajikan dashboard analitik yang komprehensif, pencatatan audit trail yang lengkap, serta keamanan role-based access control (RBAC) murni demi melindungi data aset operasional Anda.
+                </p>
+            </div>
+
+            <!-- Developer Profile Card -->
+            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 24px; margin-top: 12px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #f0f9ff; margin-bottom: 16px;">Pengembang Sistem</h3>
+                <div style="display: flex; align-items: center; gap: 16px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #020813; font-size: 1.2rem; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));">TN</div>
+                    <div>
+                        <div style="font-size: 1rem; font-weight: 700; color: #f0f9ff;">Tasya Nabila</div>
+                        <div style="font-size: 0.8rem; color: #60a5fa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Lead Developer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-box">
+                <h3>Teknologi Ekosistem</h3>
+                <ul class="tech-list">
+                    <li>Core Backend: <span>Python Flask</span></li>
+                    <li>ORM Database: <span>SQLite SQLAlchemy</span></li>
+                    <li>UI Framework: <span>Tailwind CSS v3</span></li>
+                    <li>Data Chart: <span>Chart.js</span></li>
+                    <li>Template Engine: <span>Jinja2</span></li>
+                    <li>Dynamic Interactivity: <span>HTMX & Alpine.js</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-action">
+            <a href="{{ url_for('auth.welcome') }}" class="btn-home">Kembali ke Beranda</a>
+        </div>
+    </div>
+
+</body>
+</html>

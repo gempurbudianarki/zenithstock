@@ -1,0 +1,522 @@
+{% extends "base.html" %}
+
+{% block title %}Analitik Inventaris – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+</svg>
+Analitik Inventaris
+{% endblock %}
+{% block breadcrumb %}Laporan › Analitik Stok{% endblock %}
+
+{% block extra_head %}
+<style>
+.chart-container { position: relative; width:100%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ── KPI ROW ── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="stat-card" style="grid-column:span 1;">
+            <div>
+                <div class="stat-label">Total Valuasi Aset</div>
+                <div class="stat-value cyan" style="font-size:1.5rem;">Rp {{ "{:,.0f}".format(total_valuation).replace(",",".") }}</div>
+                <div class="stat-sub">{{ total_products }} SKU terdaftar</div>
+            </div>
+            <div class="stat-icon cyan glow-pulse">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Volume Stok Total</div>
+                <div class="stat-value">{{ "{:,}".format(total_stock).replace(",",".") }}</div>
+                <div class="stat-sub">unit dalam gudang</div>
+            </div>
+            <div class="stat-icon slate">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Log Transaksi</div>
+                <div class="stat-value">{{ total_masuk + total_keluar + total_sesuai }}</div>
+                <div class="stat-sub">↑ {{ total_masuk }} masuk &nbsp;↓ {{ total_keluar }} keluar</div>
+            </div>
+            <div class="stat-icon blue">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Status Normal</div>
+                <div class="stat-value green">{{ normal_count }}</div>
+                <div class="stat-sub">produk stok aman</div>
+            </div>
+            <div class="stat-icon green">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Stok Kritis</div>
+                <div class="stat-value {% if critical_count > 0 %}amber{% endif %}">{{ critical_count }}</div>
+                <div class="stat-sub">perlu segera restock</div>
+            </div>
+            <div class="stat-icon {% if critical_count > 0 %}amber{% else %}slate{% endif %}">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Stok Habis</div>
+                <div class="stat-value {% if empty_count > 0 %}red{% endif %}">{{ empty_count }}</div>
+                <div class="stat-sub">produk tidak tersedia</div>
+            </div>
+            <div class="stat-icon {% if empty_count > 0 %}red{% else %}slate{% endif %}">
+                <svg style="width:22px;height:22px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CHART ROW 1 ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- 14-Day Trend (spans 2 cols) -->
+        <div class="zs-panel" style="padding:24px;grid-column:span 2;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <div>
+                    <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 3px;">Tren Mutasi 14 Hari Terakhir</h3>
+                    <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">Perbandingan volume barang masuk vs. keluar per hari</p>
+                </div>
+                <div style="display:flex;gap:16px;font-size:0.75rem;">
+                    <span style="display:flex;align-items:center;gap:5px;color:var(--color-text-muted);">
+                        <span style="width:10px;height:10px;border-radius:2px;background:#22d3ee;display:inline-block;"></span>Masuk
+                    </span>
+                    <span style="display:flex;align-items:center;gap:5px;color:var(--color-text-muted);">
+                        <span style="width:10px;height:10px;border-radius:2px;background:#f87171;display:inline-block;"></span>Keluar
+                    </span>
+                </div>
+            </div>
+            <div class="chart-container" style="height:240px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Stock Health Donut -->
+        <div class="zs-panel" style="padding:24px;">
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 3px;">Status Kesehatan Stok</h3>
+                <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">Distribusi kondisi stok produk</p>
+            </div>
+            <div class="chart-container" style="height:180px;">
+                <canvas id="healthChart"></canvas>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-top:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;">
+                    <span style="display:flex;align-items:center;gap:6px;color:var(--color-text-muted);">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;"></span>Aman
+                    </span>
+                    <span style="font-weight:700;color:#34d399;">{{ normal_count }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;">
+                    <span style="display:flex;align-items:center;gap:6px;color:var(--color-text-muted);">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Kritis
+                    </span>
+                    <span style="font-weight:700;color:#fbbf24;">{{ critical_count }}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;">
+                    <span style="display:flex;align-items:center;gap:6px;color:var(--color-text-muted);">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Habis
+                    </span>
+                    <span style="font-weight:700;color:#f87171;">{{ empty_count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CHART ROW 2 ── -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        <!-- Category Valuation Bar -->
+        <div class="zs-panel" style="padding:24px;">
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 3px;">Valuasi per Kategori</h3>
+                <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">Total nilai aset (stok × harga) per kategori produk</p>
+            </div>
+            <div class="chart-container" style="height:220px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Movement Type Doughnut -->
+        <div class="zs-panel" style="padding:24px;">
+            <div style="margin-bottom:16px;">
+                <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 3px;">Komposisi Transaksi</h3>
+                <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">Proporsi tipe mutasi stok dalam sistem</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center;">
+                <div class="chart-container" style="height:180px;width:180px;flex-shrink:0;">
+                    <canvas id="movementTypeChart"></canvas>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;flex:1;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="display:flex;align-items:center;gap:7px;font-size:0.8125rem;color:var(--color-text-secondary);">
+                            <span style="width:10px;height:10px;border-radius:2px;background:#10b981;display:inline-block;"></span>Barang Masuk
+                        </span>
+                        <span class="badge green">{{ total_masuk }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="display:flex;align-items:center;gap:7px;font-size:0.8125rem;color:var(--color-text-secondary);">
+                            <span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;"></span>Barang Keluar
+                        </span>
+                        <span class="badge red">{{ total_keluar }}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="display:flex;align-items:center;gap:7px;font-size:0.8125rem;color:var(--color-text-secondary);">
+                            <span style="width:10px;height:10px;border-radius:2px;background:#818cf8;display:inline-block;"></span>Penyesuaian
+                        </span>
+                        <span class="badge indigo">{{ total_sesuai }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOP 10 PRODUCTS ── -->
+    <div class="zs-panel">
+        <div style="padding:20px 20px 0;margin-bottom:0;">
+            <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 4px;">Top 10 Produk Berdasarkan Valuasi Aset</h3>
+            <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 16px;">Produk dengan nilai inventaris tertinggi (stok × harga satuan)</p>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="zs-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;">#</th>
+                        <th>SKU</th>
+                        <th>Nama Produk</th>
+                        <th>Kategori</th>
+                        <th style="text-align:right;">Stok</th>
+                        <th style="text-align:right;">Harga Satuan</th>
+                        <th style="text-align:right;">Total Nilai</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in top_products %}
+                    <tr>
+                        <td style="color:var(--color-text-muted);font-size:0.8rem;font-weight:600;">{{ loop.index }}</td>
+                        <td class="td-mono">{{ p.sku }}</td>
+                        <td class="td-primary">{{ p.nama_barang }}</td>
+                        <td><span class="badge slate">{{ p.kategori }}</span></td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:600;color:var(--color-text-primary);">{{ p.stok }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-secondary);">Rp {{ "{:,.0f}".format(p.harga).replace(",",".") }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--zs-cyan-400);">Rp {{ "{:,.0f}".format(p.stok * p.harga).replace(",",".") }}</td>
+                        <td>
+                            {% if p.stok == 0 %}
+                            <span class="badge red"><span class="badge-dot"></span>Habis</span>
+                            {% elif p.stok < p.min_stok %}
+                            <span class="badge amber"><span class="badge-dot"></span>Kritis</span>
+                            {% else %}
+                            <span class="badge green"><span class="badge-dot"></span>Aman</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not top_products %}
+                    <tr><td colspan="8">
+                        <div class="empty-state">
+                            <div class="empty-state-title">Belum ada data produk</div>
+                        </div>
+                    </td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── CRITICAL ALERTS ── -->
+    {% if critical_products %}
+    <div class="zs-panel" style="border-color:rgba(245,158,11,0.2);">
+        <div style="padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(245,158,11,0.15);">
+            <div style="width:36px;height:36px;border-radius:10px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg style="width:18px;height:18px;color:#fbbf24;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div>
+                <h3 style="font-size:0.9375rem;font-weight:700;color:#fbbf24;margin:0 0 2px;">Peringatan Stok Kritis & Habis</h3>
+                <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">{{ critical_products|length }} produk memerlukan tindakan pengadaan segera</p>
+            </div>
+            <a href="{{ url_for('movements.create') }}" class="btn btn-sm" style="margin-left:auto;background:rgba(245,158,11,0.1);color:#fbbf24;border-color:rgba(245,158,11,0.25);">
+                <svg style="width:13px;height:13px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Catat Restock
+            </a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="zs-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Nama Produk</th>
+                        <th>Lokasi Rak</th>
+                        <th style="text-align:right;">Stok Saat Ini</th>
+                        <th style="text-align:right;">Batas Kritis</th>
+                        <th style="text-align:right;">Kekurangan</th>
+                        <th>Status</th>
+                        <th style="text-align:center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in critical_products %}
+                    <tr>
+                        <td class="td-mono">{{ p.sku }}</td>
+                        <td class="td-primary">{{ p.nama_barang }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ p.lokasi_rak or '—' }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-weight:700;font-size:0.875rem;" class="{% if p.stok == 0 %}text-danger{% else %}text-warning{% endif %}">{{ p.stok }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-muted);">{{ p.min_stok }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-weight:700;font-size:0.875rem;color:#f87171;">{{ p.min_stok - p.stok }}</td>
+                        <td>
+                            {% if p.stok == 0 %}
+                            <span class="badge red"><span class="badge-dot"></span>Habis</span>
+                            {% else %}
+                            <span class="badge amber"><span class="badge-dot"></span>Kritis</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;">
+                            <a href="{{ url_for('movements.create', product_id=p.id) }}" class="action-btn move" title="Catat Restock">
+                                <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Chart.js Global Defaults ──────────────────────────────
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.05)';
+Chart.defaults.font.family = "'Plus Jakarta Sans', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+const CYAN   = '#22d3ee';
+const RED    = '#f87171';
+const GREEN  = '#34d399';
+const AMBER  = '#fbbf24';
+const BLUE   = '#60a5fa';
+const INDIGO = '#a5b4fc';
+
+// Color palette for categories
+const PALETTE = [
+    'rgba(34,211,238,0.75)', 'rgba(52,211,153,0.75)', 'rgba(251,191,36,0.75)',
+    'rgba(248,113,113,0.75)', 'rgba(167,139,250,0.75)', 'rgba(96,165,250,0.75)',
+    'rgba(251,146,60,0.75)', 'rgba(74,222,128,0.75)', 'rgba(244,114,182,0.75)',
+    'rgba(163,230,53,0.75)'
+];
+
+// ── 1. Trend Chart (Line) ─────────────────────────────────
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: JSON.parse('{{ trend_labels | tojson | safe }}'),
+        datasets: [
+            {
+                label: 'Masuk',
+                data: JSON.parse('{{ trend_masuk | tojson | safe }}'),
+                borderColor: CYAN,
+                backgroundColor: 'rgba(34,211,238,0.08)',
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                tension: 0.4,
+                fill: true,
+            },
+            {
+                label: 'Keluar',
+                data: JSON.parse('{{ trend_keluar | tojson | safe }}'),
+                borderColor: RED,
+                backgroundColor: 'rgba(248,113,113,0.06)',
+                borderWidth: 2,
+                pointRadius: 3,
+                pointHoverRadius: 5,
+                tension: 0.4,
+                fill: true,
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(4,17,31,0.95)',
+                borderColor: 'rgba(34,211,238,0.2)',
+                borderWidth: 1,
+                titleColor: '#f0f9ff',
+                bodyColor: '#94a3b8',
+                padding: 12,
+            }
+        },
+        scales: {
+            x: {
+                grid: { color: 'rgba(255,255,255,0.03)' },
+                ticks: { maxTicksLimit: 7 }
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                ticks: { precision: 0 }
+            }
+        }
+    }
+});
+
+// ── 2. Stock Health Donut ─────────────────────────────────
+const healthCtx = document.getElementById('healthChart').getContext('2d');
+new Chart(healthCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Aman', 'Kritis', 'Habis'],
+        datasets: [{
+            data: [Number('{{ normal_count }}'), Number('{{ critical_count }}'), Number('{{ empty_count }}')],
+            backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.8)'],
+            borderColor: ['rgba(16,185,129,0.3)', 'rgba(245,158,11,0.3)', 'rgba(239,68,68,0.3)'],
+            borderWidth: 1,
+            hoverBorderWidth: 2,
+            hoverOffset: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(4,17,31,0.95)',
+                borderColor: 'rgba(34,211,238,0.2)',
+                borderWidth: 1,
+                titleColor: '#f0f9ff',
+                bodyColor: '#94a3b8',
+                padding: 10,
+            }
+        }
+    }
+});
+
+// ── 3. Category Valuation Bar ─────────────────────────────
+const catCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(catCtx, {
+    type: 'bar',
+    data: {
+        labels: JSON.parse('{{ categories | tojson | safe }}'),
+        datasets: [{
+            label: 'Valuasi (Rp)',
+            data: JSON.parse('{{ cat_valuation | tojson | safe }}'),
+            backgroundColor: PALETTE.slice(0, Number('{{ categories|length }}')),
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(4,17,31,0.95)',
+                borderColor: 'rgba(34,211,238,0.2)',
+                borderWidth: 1,
+                titleColor: '#f0f9ff',
+                bodyColor: '#94a3b8',
+                padding: 10,
+                callbacks: {
+                    label: ctx => 'Rp ' + ctx.parsed.x.toLocaleString('id-ID')
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                ticks: {
+                    callback: v => v >= 1000000 ? 'Rp '+(v/1000000).toFixed(0)+'jt' : 'Rp '+v.toLocaleString('id-ID')
+                }
+            },
+            y: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+// ── 4. Movement Type Doughnut ─────────────────────────────
+const movCtx = document.getElementById('movementTypeChart').getContext('2d');
+new Chart(movCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['MASUK', 'KELUAR', 'PENYESUAIAN'],
+        datasets: [{
+            data: [Number('{{ total_masuk }}'), Number('{{ total_keluar }}'), Number('{{ total_sesuai }}')],
+            backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.8)', 'rgba(129,140,248,0.8)'],
+            borderColor: ['rgba(16,185,129,0.3)', 'rgba(239,68,68,0.3)', 'rgba(129,140,248,0.3)'],
+            borderWidth: 1,
+            hoverOffset: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(4,17,31,0.95)',
+                borderColor: 'rgba(34,211,238,0.2)',
+                borderWidth: 1,
+                titleColor: '#f0f9ff',
+                bodyColor: '#94a3b8',
+                padding: 10,
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

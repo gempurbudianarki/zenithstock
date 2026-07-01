@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Catat Mutasi Stok – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+</svg>
+Catat Transaksi
+{% endblock %}
+{% block breadcrumb %}Mutasi › Catat Transaksi{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;margin:0 auto;">
+    <div class="zs-panel" style="padding:32px;">
+
+        <!-- Header -->
+        <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--color-border);">
+            <h2 style="font-size:1.125rem;font-weight:700;color:var(--color-text-primary);margin:0 0 6px;">Formulir Pencatatan Mutasi</h2>
+            <p style="font-size:0.8125rem;color:var(--color-text-muted);margin:0;">Log transaksi masuk/keluar barang akan tersimpan permanen dalam Audit Trail sistem dan memperbarui jumlah stok produk secara otomatis.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('movements.create') }}" novalidate>
+            {{ form.csrf_token }}
+
+            <div style="display:flex;flex-direction:column;gap:20px;">
+
+                <!-- Product Selection -->
+                <div>
+                    <label class="form-label" for="product_id">Pilih Produk / SKU <span style="color:var(--color-danger);">*</span></label>
+                    <div class="select-wrapper">
+                        {{ form.product_id(id="product_id", class="form-control") }}
+                    </div>
+                    <div class="form-helper">Pilih produk yang mengalami pergerakan stok.</div>
+                    {% if form.product_id.errors %}{% for e in form.product_id.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Tipe Mutasi -->
+                <div>
+                    <label class="form-label" for="tipe">Tipe Transaksi <span style="color:var(--color-danger);">*</span></label>
+                    <div class="select-wrapper">
+                        {{ form.tipe(id="tipe", class="form-control") }}
+                    </div>
+                    <div class="form-helper">MASUK = stok bertambah. KELUAR = stok berkurang. PENYESUAIAN = koreksi manual.</div>
+                </div>
+
+                <!-- Qty -->
+                <div>
+                    <label class="form-label" for="jumlah">Jumlah Unit (Qty) <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.jumlah(id="jumlah", type="number", class="form-control mono", placeholder="1", min="1") }}
+                    <div class="form-helper">Masukkan jumlah unit yang masuk atau keluar (angka positif).</div>
+                    {% if form.jumlah.errors %}{% for e in form.jumlah.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <!-- Keterangan -->
+                <div>
+                    <label class="form-label" for="keterangan">Keterangan / Memo Operasional</label>
+                    {{ form.keterangan(id="keterangan", class="form-control", placeholder="Misal: Penerimaan PO #2024-178, Retur unit rusak, Stok opname...") }}
+                    <div class="form-helper">Opsional. Deskripsi singkat alasan mutasi untuk keperluan audit.</div>
+                </div>
+
+                <!-- Info box -->
+                <div style="padding:14px 16px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:var(--radius-md);font-size:0.8rem;color:var(--color-text-muted);display:flex;gap:10px;align-items:flex-start;">
+                    <svg style="width:15px;height:15px;flex-shrink:0;color:var(--zs-cyan-500);margin-top:1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Semua transaksi yang dicatat bersifat <strong style="color:var(--color-text-secondary);">permanen</strong> dan tidak dapat dihapus. Pencatat ditandai dengan akun pengguna aktif saat ini: <strong style="color:var(--zs-cyan-400);">{{ current_user.username }}</strong>.</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:28px;padding-top:20px;border-top:1px solid var(--color-border);">
+                <a href="{{ url_for('movements.index') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-primary" id="btn-submit-movement">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Catat Transaksi
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

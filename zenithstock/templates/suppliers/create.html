@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Tambah Supplier – ZenithStock Enterprise{% endblock %}
+{% block header_title %}
+<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v16m8-8H4" />
+</svg>
+Tambah Supplier
+{% endblock %}
+{% block breadcrumb %}Pemasok › Tambah{% endblock %}
+
+{% block content %}
+<div style="max-width:580px;margin:0 auto;">
+    <div class="zs-panel" style="padding:32px;">
+        <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--color-border);">
+            <h2 style="font-size:1.125rem;font-weight:700;color:var(--color-text-primary);margin:0 0 6px;">Formulir Pendaftaran Vendor</h2>
+            <p style="font-size:0.8125rem;color:var(--color-text-muted);margin:0;">Data pemasok digunakan sebagai referensi pengadaan dan pengelompokan produk berdasarkan vendor.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('suppliers.create') }}" novalidate>
+            {{ form.csrf_token }}
+
+            <div style="display:flex;flex-direction:column;gap:18px;">
+                <div>
+                    <label class="form-label" for="nama">Nama Perusahaan / Vendor <span style="color:var(--color-danger);">*</span></label>
+                    {{ form.nama(id="nama", class="form-control", placeholder="Misal: PT Global Elektronika") }}
+                    {% if form.nama.errors %}{% for e in form.nama.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" for="kontak">Kontak PIC (Person in Charge)</label>
+                    {{ form.kontak(id="kontak", class="form-control", placeholder="Misal: Budi Santoso") }}
+                </div>
+
+                <div>
+                    <label class="form-label" for="telepon">Nomor Telepon</label>
+                    {{ form.telepon(id="telepon", class="form-control mono", placeholder="Misal: 021-12345678") }}
+                </div>
+
+                <div>
+                    <label class="form-label" for="alamat">Alamat Lengkap</label>
+                    {{ form.alamat(id="alamat", rows="3", class="form-control", placeholder="Alamat kantor atau gudang pemasok") }}
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:28px;padding-top:20px;border-top:1px solid var(--color-border);">
+                <a href="{{ url_for('suppliers.index') }}" class="btn btn-secondary">Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Simpan Supplier
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -10,7 +10,7 @@ Inventaris Barang
 {% block breadcrumb %}Inventaris{% endblock %}
 
 {% block content %}
-<div class="space-y-6" x-data="{ searchQ: '{{ search_query or '' }}', catFilter: '{{ category_filter or '' }}' }">
+<div id="dashboard-root" class="space-y-6" x-data="{ searchQ: '{{ search_query or '' }}', catFilter: '{{ category_filter or '' }}' }">
 
     <!-- ─── KPI METRICS ─── -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -112,26 +112,34 @@ Inventaris Barang
         <!-- Controls Bar -->
         <div class="controls-bar">
             <div class="left">
-                <!-- Search -->
-                <div class="search-input-wrap" style="flex:1;min-width:200px;max-width:360px;">
-                    <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    <input 
-                        type="search" 
-                        name="q"
-                        id="inventory-search"
-                        x-model="searchQ"
-                        placeholder="Cari SKU, nama, kategori, rak..."
-                        class="form-control"
-                        hx-get="{{ url_for('dashboard.index') }}"
-                        hx-trigger="keyup changed delay:300ms, search"
-                        hx-target="#product-table-container"
-                        hx-include="[name='category']"
-                        hx-push-url="true"
-                        aria-label="Cari produk"
-                        value="{{ search_query or '' }}"
-                    >
+                <!-- Search with Scanner Button -->
+                <div class="search-input-wrap" style="flex:1;min-width:240px;max-width:400px;display:flex;align-items:center;gap:6px;">
+                    <div style="position:relative;flex:1;">
+                        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input 
+                            type="search" 
+                            name="q"
+                            id="inventory-search"
+                            x-model="searchQ"
+                            placeholder="Cari SKU, nama, kategori, rak..."
+                            class="form-control"
+                            hx-get="{{ url_for('dashboard.index') }}"
+                            hx-trigger="keyup changed delay:300ms, search"
+                            hx-target="#product-table-container"
+                            hx-include="[name='category']"
+                            hx-push-url="true"
+                            aria-label="Cari produk"
+                            value="{{ search_query or '' }}"
+                        >
+                    </div>
+                    <!-- Camera scan button -->
+                    <button type="button" @click="window.dispatchEvent(new Event('open-scanner'))" class="btn btn-secondary" style="padding:10px;display:inline-flex;align-items:center;justify-content:center;height:38px;width:38px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);cursor:pointer;flex-shrink:0;" title="Pindai Barcode / QR Code via Kamera">
+                        <svg style="width:18px;height:18px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v1m0 11v1m4-6h1m-11 0h1m2-4h4a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2V8a2 2 0 012-2z" />
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Category filter -->
@@ -197,4 +205,128 @@ Inventaris Barang
     </div>
 
 </div>
+
+<!-- Scanner Modal -->
+<div x-data="{ scannerOpen: false }" 
+     x-show="scannerOpen" 
+     @open-scanner.window="scannerOpen = true; startScanner();" 
+     @close-scanner.window="scannerOpen = false; stopScanner();" 
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" 
+     style="display:none;">
+    <div class="zs-panel w-full max-w-md p-6 relative border border-white/10" @click.away="window.dispatchEvent(new Event('close-scanner'))">
+        <button type="button" @click="window.dispatchEvent(new Event('close-scanner'))" 
+                style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:var(--color-text-muted);cursor:pointer;font-size:1.1rem;">
+            ✕
+        </button>
+        <h3 style="font-size:1rem;font-weight:800;color:var(--color-text-primary);margin:0 0 6px;">Pindai Barcode / QR Code</h3>
+        <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0 0 20px;">Arahkan kamera ponsel atau webcam Anda ke barcode stiker produk secara pas.</p>
+        
+        <!-- Camera Viewport -->
+        <div id="reader" style="width: 100%; min-height: 250px; background: #020817; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position:relative;"></div>
+        
+        <div style="margin-top:20px;display:flex;justify-content:flex-end;">
+            <button type="button" @click="window.dispatchEvent(new Event('close-scanner'))" class="btn btn-secondary btn-sm">Tutup Kamera</button>
+        </div>
+    </div>
+</div>
+
+<!-- Load Camera Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let html5QrCode;
+    
+    function startScanner() {
+        // Clear old reader if any
+        stopScanner();
+        
+        setTimeout(() => {
+            const readerDiv = document.getElementById("reader");
+            if (!readerDiv) return;
+            
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { 
+                fps: 15, 
+                qrbox: function(width, height) {
+                    // Responsive scanner box size
+                    return { width: Math.min(width * 0.75, 250), height: Math.min(height * 0.5, 130) };
+                }
+            };
+            
+            html5QrCode.start(
+                { facingMode: "environment" }, 
+                config,
+                (decodedText, decodedResult) => {
+                    // Success callback
+                    playBeep();
+                    
+                    // Set search input
+                    const searchInput = document.getElementById("inventory-search");
+                    if (searchInput) {
+                        searchInput.value = decodedText;
+                        
+                        // Update Alpine searchQ
+                        const rootEl = document.getElementById("dashboard-root");
+                        if (rootEl) {
+                            const alpineData = Alpine.$data(rootEl);
+                            if (alpineData) {
+                                alpineData.searchQ = decodedText;
+                            }
+                        }
+                        
+                        // Dispatch keyup event to trigger HTMX query search
+                        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        searchInput.dispatchEvent(new Event('keyup', { bubbles: true }));
+                    }
+                    
+                    // Close scanner
+                    window.dispatchEvent(new Event('close-scanner'));
+                },
+                (errorMessage) => {
+                    // Scanning... ignore errors
+                }
+            ).catch(err => {
+                console.error("Camera start error: ", err);
+                const readerDiv = document.getElementById("reader");
+                if (readerDiv) {
+                    readerDiv.innerHTML = `<div style="padding:40px 16px;text-align:center;color:var(--color-danger);font-size:0.8rem;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:center;">
+                        <svg style="width:24px;height:24px;color:#f87171;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Gagal mengakses kamera.<br><span style="color:var(--color-text-muted);font-size:0.75rem;margin-top:4px;">Pastikan izin kamera diaktifkan dan menggunakan koneksi HTTPS / Localhost.</span>
+                    </div>`;
+                }
+            });
+        }, 300);
+    }
+    
+    function stopScanner() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+            }).catch(err => {
+                console.error("Camera stop error: ", err);
+            });
+        }
+    }
+    
+    function playBeep() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 1100; // Beep pitch
+            gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.12);
+        } catch (err) {
+            console.error("Audio beep fail: ", err);
+        }
+    }
+</script>
 {% endblock %}

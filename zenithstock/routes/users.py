@@ -145,3 +145,28 @@ def toggle_role(user_id):
     db.session.commit()
     flash(f'Peran "{user.username}" diubah ke {user.role.upper()}.', 'success')
     return redirect(url_for('users.index'))
+
+
+@users_bp.route('/backup')
+@login_required
+@admin_required
+def backup():
+    """Mengunduh file database SQLite as backup (Admin-only)"""
+    import os
+    from datetime import datetime
+    from flask import send_file, current_app
+    
+    db_uri = current_app.config['SQLALCHEMY_DATABASE_URI']
+    if db_uri.startswith('sqlite:///'):
+        db_path = db_uri.replace('sqlite:///', '')
+        if not os.path.isabs(db_path):
+            db_path = os.path.join(current_app.instance_path, db_path)
+            
+        if os.path.exists(db_path):
+            filename = f"zenithstock_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+            return send_file(db_path, as_attachment=True, download_name=filename)
+        else:
+            flash('File database tidak ditemukan.', 'danger')
+    else:
+        flash('Backup hanya didukung untuk database SQLite.', 'warning')
+    return redirect(url_for('users.index'))

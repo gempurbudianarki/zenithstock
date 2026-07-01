@@ -101,6 +101,14 @@ Log Audit Trail
                         {% endfor %}
                     </select>
                 </div>
+
+                <!-- Ekspor CSV button -->
+                <button type="button" onclick="exportTableToCSV('audit-table', 'zenithstock_audit_log.csv')" class="btn btn-secondary" style="border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:var(--color-text-secondary);display:flex;align-items:center;gap:6px;margin-left:auto;" title="Ekspor audit log ke berkas CSV">
+                    <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Ekspor CSV
+                </button>
             </div>
 
             <!-- Date range filters -->

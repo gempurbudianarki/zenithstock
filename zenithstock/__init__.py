@@ -80,6 +80,21 @@ def create_app():
         db.create_all()
         seed_data()
 
+    @app.context_processor
+    def inject_notifications():
+        from flask_login import current_user
+        from zenithstock.models import Product
+        if current_user.is_authenticated:
+            critical_products = Product.query.filter(Product.stok <= Product.min_stok).all()
+            return {
+                'global_critical_products': critical_products,
+                'global_critical_count': len(critical_products)
+            }
+        return {
+            'global_critical_products': [],
+            'global_critical_count': 0
+        }
+
     return app
 
 

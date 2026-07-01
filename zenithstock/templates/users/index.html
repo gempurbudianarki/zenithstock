@@ -92,7 +92,13 @@ Manajemen Pengguna
                     Reset
                 </button>
             </div>
-            <div class="right">
+            <div class="right" style="display:flex;gap:8px;">
+                <a href="{{ url_for('users.backup') }}" class="btn btn-secondary" style="border:1px solid rgba(34,211,238,0.25);color:var(--zs-cyan-400);background:rgba(34,211,238,0.03);" title="Unduh Backup Database SQLite">
+                    <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Backup DB
+                </a>
                 <a href="{{ url_for('auth.register') }}" class="btn btn-primary" id="btn-add-user">
                     <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />

@@ -88,3 +88,27 @@ def logout():
     logout_user()
     flash('Anda telah berhasil logout.', 'info')
     return redirect(url_for('auth.welcome'))
+
+
+@auth_bp.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    """Halaman ubah password mandiri bagi pengguna login"""
+    if request.method == 'POST':
+        old_password = request.form.get('old_password', '').strip()
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        if not current_user.check_password(old_password):
+            flash('Password lama salah.', 'danger')
+        elif len(new_password) < 6:
+            flash('Password baru minimal harus 6 karakter.', 'danger')
+        elif new_password != confirm_password:
+            flash('Konfirmasi password baru tidak cocok.', 'danger')
+        else:
+            current_user.set_password(new_password)
+            db.session.commit()
+            flash('Password Anda berhasil diperbarui!', 'success')
+            return redirect(url_for('dashboard.index'))
+            
+    return render_template('auth/change_password.html')

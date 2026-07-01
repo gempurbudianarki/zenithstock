@@ -10,8 +10,9 @@ Ubah Barang
 {% block breadcrumb %}Inventaris › {{ product.sku }}{% endblock %}
 
 {% block content %}
-<div style="max-width:680px;margin:0 auto;">
-    <div class="zs-panel" style="padding:32px;">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1100px] mx-auto" style="align-items:start;">
+    <!-- Form Card -->
+    <div class="zs-panel lg:col-span-8" style="padding:32px;">
 
         <!-- Panel header with SKU badge -->
         <div style="margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--color-border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
@@ -105,5 +106,77 @@ Ubah Barang
             </div>
         </form>
     </div>
+
+    <!-- Barcode & QR Code Card -->
+    <div class="zs-panel lg:col-span-4" style="padding:28px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;">
+        <div style="align-self:flex-start;text-align:left;width:100%;margin-bottom:8px;padding-bottom:12px;border-bottom:1px solid var(--color-border);">
+            <h3 style="font-size:0.9375rem;font-weight:700;color:var(--color-text-primary);margin:0 0 4px;">Label Rak & Barcode</h3>
+            <p style="font-size:0.75rem;color:var(--color-text-muted);margin:0;">Gunakan label ini untuk kebutuhan penandaan fisik barang di lokasi rak gudang.</p>
+        </div>
+        
+        <!-- Printable Label Container -->
+        <div id="printable-label" style="background:#04111f;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;width:100%;max-width:280px;display:flex;flex-direction:column;align-items:center;gap:16px;box-shadow:var(--shadow-elevated);">
+            <div style="font-size:0.875rem;font-weight:800;color:#f0f9ff;letter-spacing:0.02em;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px;">{{ product.nama_barang }}</div>
+            
+            <!-- Barcode SVG -->
+            <svg id="barcode" style="width:100%;max-height:80px;"></svg>
+            
+            <!-- QR Code -->
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ product.sku }}&color=f0f9ff&bgcolor=04111f" alt="QR Code SKU" style="width:110px;height:110px;object-fit:contain;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:4px;background:#04111f;">
+            
+            <div style="display:flex;justify-content:space-between;width:100%;font-size:0.7rem;color:var(--color-text-muted);border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;margin-top:4px;">
+                <span>Rak: <strong style="color:var(--color-text-primary);">{{ product.lokasi_rak or '—' }}</strong></span>
+                <span>Kat: <strong style="color:var(--color-text-primary);">{{ product.kategori }}</strong></span>
+            </div>
+        </div>
+        
+        <button type="button" onclick="printLabel()" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;gap:6px;">
+            <svg style="width:14px;height:14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            Cetak Label Rak
+        </button>
+    </div>
 </div>
+
+<!-- Scripts for Barcode & QR Code -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        JsBarcode("#barcode", "{{ product.sku }}", {
+            format: "CODE128",
+            lineColor: "#f0f9ff",
+            background: "transparent",
+            width: 2,
+            height: 40,
+            displayValue: true,
+            fontColor: "#94a3b8",
+            fontSize: 12,
+            margin: 0
+        });
+    });
+
+    function printLabel() {
+        const printContent = document.getElementById('printable-label').outerHTML;
+        
+        // Open new print window
+        const win = window.open('', '_blank', 'width=600,height=600');
+        win.document.write('<html><head><title>Cetak Label Rak - {{ product.sku }}</title>');
+        win.document.write('<style>');
+        win.document.write('body { font-family: system-ui, -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #ffffff; color: #000000; }');
+        // Black and white high-contrast print styles using CSS filter invert
+        win.document.write('#printable-label { border: 2px solid #f0f9ff !important; border-radius: 12px; padding: 24px; width: 280px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; background: #04111f !important; color: #f0f9ff !important; box-shadow: none !important; filter: invert(1) !important; }');
+        win.document.write('</style></head><body>');
+        win.document.write(printContent);
+        win.document.write('</body></html>');
+        win.document.close();
+        
+        // Trigger print after load
+        setTimeout(() => {
+            win.focus();
+            win.print();
+            win.close();
+        }, 350);
+    }
+</script>
 {% endblock %}

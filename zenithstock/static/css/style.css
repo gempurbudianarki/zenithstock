@@ -1343,3 +1343,68 @@ select.form-control option {
 .stat-card.clickable:active {
   transform: translateY(0) scale(0.99);
 }
+
+/* ────────────────────────────────────────────
+   PRINT LAYOUT STYLES
+   ──────────────────────────────────────────── */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 10pt !important;
+  }
+  
+  .sidebar, .topbar, .controls-bar, .btn, .action-btn, th:last-child, td:last-child, select, button, .select-wrapper::after, #flash-container {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  .print-only-header {
+    display: block !important;
+  }
+  
+  .zs-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  
+  .zs-table {
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+  
+  .zs-table th {
+    background: #f1f5f9 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #000000 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    padding: 8px 6px !important;
+  }
+  
+  .zs-table td {
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-right: 1px solid #e2e8f0 !important;
+    color: #000000 !important;
+    padding: 8px 6px !important;
+  }
+  
+  .badge {
+    background: transparent !important;
+    border: 1px solid #000000 !important;
+    color: #000000 !important;
+    padding: 2px 4px !important;
+  }
+  
+  .badge-dot {
+    display: none !important;
+  }
+}

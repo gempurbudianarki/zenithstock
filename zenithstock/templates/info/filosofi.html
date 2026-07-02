@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filosofi Logo – ZenithStock Enterprise</title>
+    <title>Filosofi Logo | ZenithStock Enterprise</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,10 +14,10 @@
             padding: 0;
         }
 
-        html, body {
-            height: 100%;
-            background-color: #020813;
-            color: #f0f9ff;
+        html {
+            scroll-behavior: smooth;
+            background-color: #f8fafc;
+            color: #1e293b;
             font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             overflow-x: hidden;
         }
@@ -35,12 +35,12 @@
             transform: translateZ(0);
         }
 
-        /* Transparent dark overlay to see the warehouse image clearly */
+        /* Dark transparent overlay to see the warehouse image directly and clearly */
         .page-bg::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(2, 8, 19, 0.85) 0%, rgba(2, 8, 19, 0.95) 100%);
+            background: rgba(15, 23, 42, 0.45);
         }
 
         .container {
@@ -61,16 +61,17 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #22d3ee;
+            color: #e2e8f0;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 700;
             align-self: flex-start;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, color 0.2s ease;
         }
 
         .back-link:hover {
             transform: translateX(-4px);
+            color: #a5b4fc;
         }
 
         .back-link svg {
@@ -80,13 +81,18 @@
 
         /* Glass Panel Card */
         .info-panel {
-            background: rgba(7, 17, 31, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(34, 211, 238, 0.15);
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            border-radius: 28px;
             padding: 48px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.3),
+                inset 4px 4px 0px rgba(255, 255, 255, 0.95), /* Bevel light */
+                inset -4px -4px 0px rgba(165, 180, 252, 0.22), /* Bevel dark */
+                inset 8px 8px 16px rgba(255, 255, 255, 0.95),
+                inset -10px -10px 20px rgba(165, 180, 252, 0.28);
             display: flex;
             flex-direction: column;
             gap: 32px;
@@ -96,7 +102,7 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             padding-bottom: 24px;
         }
 
@@ -104,7 +110,7 @@
             width: 70px;
             height: 70px;
             object-fit: contain;
-            filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.5));
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.35));
         }
 
         .panel-title h1 {
@@ -116,7 +122,7 @@
 
         .panel-title p {
             font-size: 0.85rem;
-            color: #22d3ee;
+            color: #818cf8;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -126,7 +132,7 @@
         .intro-text {
             font-size: 1rem;
             line-height: 1.7;
-            color: #94a3b8;
+            color: #475569;
         }
 
         /* Filosofi Grid */
@@ -137,17 +143,25 @@
         }
 
         .filosofi-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 20px;
             padding: 24px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 
+                0 8px 16px rgba(100, 116, 139, 0.05),
+                inset 2px 2px 0px rgba(255, 255, 255, 0.95),
+                inset -2px -2px 0px rgba(148, 163, 184, 0.12);
         }
 
         .filosofi-card:hover {
-            border-color: rgba(34, 211, 238, 0.25);
-            background: rgba(34, 211, 238, 0.03);
-            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.25);
+            background: #ffffff;
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 12px 24px rgba(99, 102, 241, 0.08),
+                inset 2px 2px 0px rgba(255, 255, 255, 0.95),
+                inset -2px -2px 0px rgba(99, 102, 241, 0.15);
         }
 
         .card-header-row {
@@ -161,8 +175,8 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: rgba(34, 211, 238, 0.15);
-            color: #22d3ee;
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
             font-size: 0.9rem;
             font-weight: 800;
             display: flex;
@@ -173,12 +187,12 @@
         .card-title {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #f0f9ff;
+            color: #0f172a;
         }
 
         .card-desc {
             font-size: 0.9rem;
-            color: #94a3b8;
+            color: #475569;
             line-height: 1.6;
         }
 
@@ -186,13 +200,13 @@
         .color-value-box {
             margin-top: 10px;
             padding-top: 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .color-value-box h3 {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #f0f9ff;
+            color: #0f172a;
             margin-bottom: 16px;
             display: flex;
             align-items: center;
@@ -206,10 +220,11 @@
         }
 
         .color-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.12);
             border-radius: 12px;
             padding: 16px;
+            box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.95), inset -1px -1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .color-swatch {
@@ -221,13 +236,13 @@
         .color-name {
             font-size: 0.85rem;
             font-weight: 700;
-            color: #f0f9ff;
+            color: #0f172a;
             margin-bottom: 4px;
         }
 
         .color-desc {
             font-size: 0.78rem;
-            color: #94a3b8;
+            color: #475569;
             line-height: 1.4;
         }
 
@@ -243,19 +258,29 @@
             align-items: center;
             gap: 10px;
             padding: 14px 36px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0891b2, #22d3ee);
-            color: #001a24;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
             font-size: 0.9375rem;
             font-weight: 800;
             text-decoration: none;
-            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.35);
-            transition: all 0.25s ease;
+            box-shadow: 
+                0 8px 16px rgba(99, 102, 241, 0.35), 
+                inset 2px 2px 0px rgba(255, 255, 255, 0.45), 
+                inset -2px -2px 0px rgba(0, 0, 0, 0.25), 
+                inset 4px 4px 8px rgba(255, 255, 255, 0.45), 
+                inset -6px -6px 12px rgba(0, 0, 0, 0.25);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .btn-home:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.5);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 
+                0 12px 24px rgba(99, 102, 241, 0.55), 
+                inset 3px 3px 0px rgba(255, 255, 255, 0.55), 
+                inset -3px -3px 0px rgba(0, 0, 0, 0.15), 
+                inset 4px 4px 8px rgba(255, 255, 255, 0.55), 
+                inset -6px -6px 12px rgba(0, 0, 0, 0.15);
         }
     </style>
 </head>

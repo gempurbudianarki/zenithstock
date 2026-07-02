@@ -11,7 +11,7 @@ analytics_bp = Blueprint('analytics', __name__, url_prefix='/analytics')
 @analytics_bp.route('/')
 @login_required
 def index():
-    all_products = Product.query.all()
+    all_products = Product.query.filter(Product.is_deleted == False).all()
 
     total_products = len(all_products)
     total_stock = sum(p.stok for p in all_products)
@@ -22,6 +22,7 @@ def index():
 
     cat_data = (
         db.session.query(Product.kategori, func.count(Product.id), func.sum(Product.stok * Product.harga))
+        .filter(Product.is_deleted == False)
         .group_by(Product.kategori)
         .all()
     )
@@ -92,6 +93,6 @@ def index():
 @analytics_bp.route('/api/chart-data')
 @login_required
 def chart_data():
-    all_products = Product.query.all()
+    all_products = Product.query.filter(Product.is_deleted == False).all()
     total_val = sum(p.stok * p.harga for p in all_products)
     return jsonify({"total_valuation": total_val, "total_products": len(all_products)})

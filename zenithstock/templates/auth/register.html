@@ -6,11 +6,11 @@
 {% set in_app = false %}
 {% endif %}
 
-{% block title %}Tambah Pengguna – ZenithStock Enterprise{% endblock %}
+{% block title %}Tambah Pengguna | ZenithStock Enterprise{% endblock %}
 {% block auth_subtitle %}Buat akun baru untuk akses sistem{% endblock %}
 {% block header_title %}
 {% if in_app %}
-<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<svg style="width:20px;height:20px;color:var(--color-text-accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
 </svg>
 Tambah Pengguna Baru
@@ -114,7 +114,7 @@ Tambah Pengguna Baru
 
         <div style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--color-text-muted);">
             Sudah memiliki akun?
-            <a href="{{ url_for('auth.login') }}" style="color:#60a5fa;font-weight:600;text-decoration:none;transition:color var(--transition-fast) ease;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'">Masuk di sini</a>
+            <a href="{{ url_for('auth.login') }}" style="color:#4f46e5;font-weight:600;text-decoration:none;transition:color var(--transition-fast) ease;" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#4f46e5'">Masuk di sini</a>
         </div>
         {% endif %}
     </form>

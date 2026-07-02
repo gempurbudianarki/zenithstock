@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Ubah Pengguna – ZenithStock Enterprise{% endblock %}
+{% block title %}Ubah Pengguna | ZenithStock Enterprise{% endblock %}
 {% block header_title %}
 <svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -64,8 +64,8 @@ Ubah Pengguna
                 <label class="form-label" for="role">Peran Pengguna</label>
                 <div class="select-wrapper" style="max-width:280px;">
                     <select name="role" id="role" class="form-control">
-                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator – Akses Penuh</option>
-                        <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff – Akses Operasional</option>
+                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator | Akses Penuh</option>
+                        <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff | Akses Operasional</option>
                     </select>
                 </div>
                 <div class="form-helper">Perubahan peran berlaku segera setelah disimpan.</div>
@@ -102,9 +102,9 @@ Ubah Pengguna
                 <label class="form-label" for="status">Status Pengguna</label>
                 <div class="select-wrapper" style="max-width:280px;">
                     <select name="status" id="status" class="form-control">
-                        <option value="active" {% if user.status == 'active' %}selected{% endif %}>Aktif – Dapat Mengakses Sistem</option>
-                        <option value="pending" {% if user.status == 'pending' %}selected{% endif %}>Menunggu – Peninjauan / Pendaftaran Baru</option>
-                        <option value="inactive" {% if user.status == 'inactive' %}selected{% endif %}>Non-Aktif – Akses Ditangguhkan</option>
+                        <option value="active" {% if user.status == 'active' %}selected{% endif %}>Aktif | Dapat Mengakses Sistem</option>
+                        <option value="pending" {% if user.status == 'pending' %}selected{% endif %}>Menunggu | Peninjauan / Pendaftaran Baru</option>
+                        <option value="inactive" {% if user.status == 'inactive' %}selected{% endif %}>Non-Aktif | Akses Ditangguhkan</option>
                     </select>
                 </div>
                 <div class="form-helper">Status "Menunggu" atau "Non-Aktif" akan mencegah user login.</div>

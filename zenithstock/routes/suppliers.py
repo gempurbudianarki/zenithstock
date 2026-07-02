@@ -21,7 +21,7 @@ def index():
         )
 
     suppliers = query.order_by(Supplier.nama).all()
-    products_with_supplier = Product.query.filter(Product.supplier_id.isnot(None)).count()
+    products_with_supplier = Product.query.filter(Product.supplier_id.isnot(None), Product.is_deleted == False).count()
 
     if request.headers.get('HX-Request'):
         return render_template('suppliers/_table.html', suppliers=suppliers, search_query=search_query)
@@ -91,7 +91,18 @@ def delete(supplier_id):
     supplier = Supplier.query.get_or_404(supplier_id)
     nama = supplier.nama
 
+    active_products_count = Product.query.filter_by(supplier_id=supplier_id, is_deleted=False).count()
+    if active_products_count > 0:
+        flash(
+            f'Gagal menghapus supplier "{nama}". '
+            f'Supplier ini masih digunakan oleh {active_products_count} produk aktif.',
+            'danger'
+        )
+        return redirect(url_for('suppliers.index'))
+
     try:
+        # Set supplier_id to None for deleted products using this supplier to avoid foreign key violations
+        Product.query.filter_by(supplier_id=supplier_id, is_deleted=True).update({'supplier_id': None})
         db.session.delete(supplier)
         db.session.commit()
         flash(f'Supplier "{nama}" berhasil dihapus.', 'success')
@@ -99,7 +110,7 @@ def delete(supplier_id):
         db.session.rollback()
         flash(
             f'Gagal menghapus supplier "{nama}". '
-            f'Kemungkinan supplier ini sedang digunakan oleh data barang.',
+            f'Terjadi kesalahan internal database.',
             'danger'
         )
 

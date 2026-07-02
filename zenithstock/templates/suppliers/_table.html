@@ -15,10 +15,10 @@
                 <td>
                     <div style="font-weight:700;color:var(--color-text-primary);font-size:0.9rem;">{{ supplier.nama }}</div>
                 </td>
-                <td style="color:var(--color-text-secondary);">{{ supplier.kontak or '—' }}</td>
-                <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);">{{ supplier.telepon or '—' }}</td>
+                <td style="color:var(--color-text-secondary);">{{ supplier.kontak or '-' }}</td>
+                <td style="font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-secondary);">{{ supplier.telepon or '-' }}</td>
                 <td class="hidden sm:table-cell" style="color:var(--color-text-muted);font-size:0.8125rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ supplier.alamat }}">
-                    {{ supplier.alamat or '—' }}
+                    {{ supplier.alamat or '-' }}
                 </td>
                 <td style="text-align:center;">
                     <div style="display:inline-flex;align-items:center;gap:4px;">

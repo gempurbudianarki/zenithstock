@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Analitik Inventaris – ZenithStock Enterprise{% endblock %}
+{% block title %}Analitik Inventaris | ZenithStock Enterprise{% endblock %}
 {% block header_title %}
-<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<svg style="width:20px;height:20px;color:var(--color-text-accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
 </svg>
 Analitik Inventaris
@@ -232,7 +232,7 @@ Analitik Inventaris
                         <td><span class="badge slate">{{ p.kategori }}</span></td>
                         <td style="text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:600;color:var(--color-text-primary);">{{ p.stok }}</td>
                         <td style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-secondary);">Rp {{ "{:,.0f}".format(p.harga).replace(",",".") }}</td>
-                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--zs-cyan-400);">Rp {{ "{:,.0f}".format(p.stok * p.harga).replace(",",".") }}</td>
+                        <td style="text-align:right;font-family:var(--font-mono);font-size:0.875rem;font-weight:700;color:var(--color-text-accent);">Rp {{ "{:,.0f}".format(p.stok * p.harga).replace(",",".") }}</td>
                         <td>
                             {% if p.stok == 0 %}
                             <span class="badge red"><span class="badge-dot"></span>Habis</span>
@@ -295,7 +295,7 @@ Analitik Inventaris
                     <tr>
                         <td class="td-mono">{{ p.sku }}</td>
                         <td class="td-primary">{{ p.nama_barang }}</td>
-                        <td style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ p.lokasi_rak or '—' }}</td>
+                        <td style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ p.lokasi_rak or '-' }}</td>
                         <td style="text-align:right;font-family:var(--font-mono);font-weight:700;font-size:0.875rem;" class="{% if p.stok == 0 %}text-danger{% else %}text-warning{% endif %}">{{ p.stok }}</td>
                         <td style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-muted);">{{ p.min_stok }}</td>
                         <td style="text-align:right;font-family:var(--font-mono);font-weight:700;font-size:0.875rem;color:#f87171;">{{ p.min_stok - p.stok }}</td>

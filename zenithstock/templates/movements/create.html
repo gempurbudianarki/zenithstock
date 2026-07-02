@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Catat Mutasi Stok – ZenithStock Enterprise{% endblock %}
+{% block title %}Catat Mutasi Stok | ZenithStock Enterprise{% endblock %}
 {% block header_title %}
-<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<svg style="width:20px;height:20px;color:var(--color-text-accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
 </svg>
 Catat Transaksi
@@ -19,7 +19,7 @@ Catat Transaksi
             <p style="font-size:0.8125rem;color:var(--color-text-muted);margin:0;">Log transaksi masuk/keluar barang akan tersimpan permanen dalam Audit Trail sistem dan memperbarui jumlah stok produk secara otomatis.</p>
         </div>
 
-        <form method="POST" action="{{ url_for('movements.create') }}" novalidate>
+        <form method="POST" action="{{ url_for('movements.create') }}" novalidate x-data="{ tipe: '{{ form.tipe.data or 'MASUK' }}' }">
             {{ form.csrf_token }}
 
             <div style="display:flex;flex-direction:column;gap:20px;">
@@ -38,16 +38,25 @@ Catat Transaksi
                 <div>
                     <label class="form-label" for="tipe">Tipe Transaksi <span style="color:var(--color-danger);">*</span></label>
                     <div class="select-wrapper">
-                        {{ form.tipe(id="tipe", class="form-control") }}
+                        {{ form.tipe(id="tipe", class="form-control", **{'x-model': 'tipe'}) }}
                     </div>
                     <div class="form-helper">MASUK = stok bertambah. KELUAR = stok berkurang. PENYESUAIAN = koreksi manual.</div>
+                </div>
+
+                <!-- Arah Penyesuaian (Hanya muncul jika tipe == PENYESUAIAN) -->
+                <div x-show="tipe === 'PENYESUAIAN'" x-transition style="display:none;">
+                    <label class="form-label" for="arah_penyesuaian">Arah Penyesuaian <span style="color:var(--color-danger);">*</span></label>
+                    <div class="select-wrapper">
+                        {{ form.arah_penyesuaian(id="arah_penyesuaian", class="form-control") }}
+                    </div>
+                    <div class="form-helper">Pilih apakah penyesuaian akan menambah atau mengurangi stok fisik.</div>
                 </div>
 
                 <!-- Qty -->
                 <div>
                     <label class="form-label" for="jumlah">Jumlah Unit (Qty) <span style="color:var(--color-danger);">*</span></label>
                     {{ form.jumlah(id="jumlah", type="number", class="form-control mono", placeholder="1", min="1") }}
-                    <div class="form-helper">Masukkan jumlah unit yang masuk atau keluar (angka positif).</div>
+                    <div class="form-helper">Masukkan jumlah unit mutasi (angka positif).</div>
                     {% if form.jumlah.errors %}{% for e in form.jumlah.errors %}<div class="form-error">{{ e }}</div>{% endfor %}{% endif %}
                 </div>
 
@@ -59,11 +68,11 @@ Catat Transaksi
                 </div>
 
                 <!-- Info box -->
-                <div style="padding:14px 16px;background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.12);border-radius:var(--radius-md);font-size:0.8rem;color:var(--color-text-muted);display:flex;gap:10px;align-items:flex-start;">
-                    <svg style="width:15px;height:15px;flex-shrink:0;color:var(--zs-cyan-500);margin-top:1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div style="padding:14px 16px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.12);border-radius:var(--radius-md);font-size:0.8rem;color:var(--color-text-muted);display:flex;gap:10px;align-items:flex-start;">
+                    <svg style="width:15px;height:15px;flex-shrink:0;color:var(--color-accent);margin-top:1px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Semua transaksi yang dicatat bersifat <strong style="color:var(--color-text-secondary);">permanen</strong> dan tidak dapat dihapus. Pencatat ditandai dengan akun pengguna aktif saat ini: <strong style="color:var(--zs-cyan-400);">{{ current_user.username }}</strong>.</span>
+                    <span>Semua transaksi yang dicatat bersifat <strong style="color:var(--color-text-secondary);">permanen</strong> dan tidak dapat dihapus. Pencatat ditandai dengan akun pengguna aktif saat ini: <strong style="color:var(--color-text-accent);">{{ current_user.username }}</strong>.</span>
                 </div>
             </div>
 

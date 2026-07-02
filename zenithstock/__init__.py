@@ -76,6 +76,7 @@ def create_app():
         from zenithstock.models import Product
         if current_user.is_authenticated:
             critical_products = Product.query.filter(
+                Product.is_deleted == False,
                 Product.stok > 0, Product.stok <= Product.min_stok
             ).all()
             return {

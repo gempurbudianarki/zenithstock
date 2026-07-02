@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tentang Kami – ZenithStock Enterprise</title>
+    <title>Tentang Kami | ZenithStock Enterprise</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -14,10 +14,10 @@
             padding: 0;
         }
 
-        html, body {
-            height: 100%;
-            background-color: #020813;
-            color: #f0f9ff;
+        html {
+            scroll-behavior: smooth;
+            background-color: #f8fafc;
+            color: #1e293b;
             font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             overflow-x: hidden;
         }
@@ -35,11 +35,12 @@
             transform: translateZ(0);
         }
 
+        /* Dark transparent overlay to see the warehouse image directly and clearly */
         .page-bg::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(2, 8, 19, 0.85) 0%, rgba(2, 8, 19, 0.95) 100%);
+            background: rgba(15, 23, 42, 0.45);
         }
 
         .container {
@@ -59,16 +60,17 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #22d3ee;
+            color: #e2e8f0;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 700;
             align-self: flex-start;
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, color 0.2s ease;
         }
 
         .back-link:hover {
             transform: translateX(-4px);
+            color: #a5b4fc;
         }
 
         .back-link svg {
@@ -78,13 +80,18 @@
 
         /* Glass Panel Card */
         .info-panel {
-            background: rgba(7, 17, 31, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(34, 211, 238, 0.15);
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 2px solid rgba(255, 255, 255, 0.85);
+            border-radius: 28px;
             padding: 48px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.3),
+                inset 4px 4px 0px rgba(255, 255, 255, 0.95), /* Bevel light */
+                inset -4px -4px 0px rgba(165, 180, 252, 0.22), /* Bevel dark */
+                inset 8px 8px 16px rgba(255, 255, 255, 0.95),
+                inset -10px -10px 20px rgba(165, 180, 252, 0.28);
             display: flex;
             flex-direction: column;
             gap: 28px;
@@ -94,26 +101,26 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             padding-bottom: 24px;
         }
 
         .panel-header svg {
             width: 50px;
             height: 50px;
-            color: #22d3ee;
+            color: #818cf8;
         }
 
         .panel-title h1 {
             font-size: 1.8rem;
             font-weight: 800;
-            color: #f0f9ff;
+            color: #0f172a;
             letter-spacing: -0.02em;
         }
 
         .panel-title p {
             font-size: 0.85rem;
-            color: #22d3ee;
+            color: #818cf8;
             font-weight: 700;
             letter-spacing: 0.05em;
             text-transform: uppercase;
@@ -122,7 +129,7 @@
 
         .about-text {
             font-size: 1rem;
-            color: #94a3b8;
+            color: #475569;
             line-height: 1.7;
             display: flex;
             flex-direction: column;
@@ -132,7 +139,7 @@
         .tech-box h3 {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #f0f9ff;
+            color: #0f172a;
             margin-bottom: 14px;
         }
 
@@ -144,16 +151,20 @@
         }
 
         .tech-list li {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 12px;
             padding: 12px 16px;
             font-size: 0.875rem;
-            color: #22d3ee;
+            color: #818cf8;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 
+                0 8px 16px rgba(100, 116, 139, 0.04),
+                inset 1px 1px 2px rgba(255, 255, 255, 0.95),
+                inset -1px -1px 2px rgba(0, 0, 0, 0.05);
         }
 
         .tech-list li span {
@@ -172,19 +183,29 @@
             align-items: center;
             gap: 10px;
             padding: 14px 36px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #0891b2, #22d3ee);
-            color: #001a24;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
             font-size: 0.9375rem;
             font-weight: 800;
             text-decoration: none;
-            box-shadow: 0 4px 20px rgba(34, 211, 238, 0.35);
-            transition: all 0.25s ease;
+            box-shadow: 
+                0 8px 16px rgba(99, 102, 241, 0.35), 
+                inset 2px 2px 0px rgba(255, 255, 255, 0.45), 
+                inset -2px -2px 0px rgba(0, 0, 0, 0.25), 
+                inset 4px 4px 8px rgba(255, 255, 255, 0.45), 
+                inset -6px -6px 12px rgba(0, 0, 0, 0.25);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .btn-home:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(34, 211, 238, 0.5);
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 
+                0 12px 24px rgba(99, 102, 241, 0.55), 
+                inset 3px 3px 0px rgba(255, 255, 255, 0.55), 
+                inset -3px -3px 0px rgba(0, 0, 0, 0.15), 
+                inset 4px 4px 8px rgba(255, 255, 255, 0.55), 
+                inset -6px -6px 12px rgba(0, 0, 0, 0.15);
         }
     </style>
 </head>
@@ -220,15 +241,41 @@
                 </p>
             </div>
 
-            <!-- Developer Profile Card -->
-            <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 24px; margin-top: 12px;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: #f0f9ff; margin-bottom: 16px;">Pengembang Sistem</h3>
-                <div style="display: flex; align-items: center; gap: 16px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 16px; border-radius: 16px;">
-                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #020813; font-size: 1.2rem; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));">TN</div>
-                    <div>
-                        <div style="font-size: 1rem; font-weight: 700; color: #f0f9ff;">Tasya Nabila</div>
-                        <div style="font-size: 0.8rem; color: #60a5fa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px;">Lead Developer</div>
+            <!-- Developer Profile Cards -->
+            <div style="border-top: 1px solid rgba(0, 0, 0, 0.05); padding-top: 24px; margin-top: 12px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 16px;">Tim Pengembang Sistem</h3>
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+
+                    <!-- Developer 1: Syifaur Rahmi -->
+                    <div style="display: flex; align-items: flex-start; gap: 16px; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.12); padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(99,102,241,0.06), inset 3px 3px 0px rgba(255, 255, 255, 0.95), inset -2px -2px 0px rgba(165, 180, 252, 0.15);">
+                        <div style="flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #f472b6, #db2777); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 1.2rem; filter: drop-shadow(0 0 10px rgba(244, 114, 182, 0.45)); border: 2px solid rgba(255,255,255,0.8);">SR</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">Syifaur Rahmi</div>
+                                <div style="font-size: 0.7rem; color: #db2777; font-weight: 700; background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.2); padding: 2px 8px; border-radius: 99px; letter-spacing: 0.04em;">24210218</div>
+                                <div style="font-size: 0.7rem; color: #818cf8; font-weight: 700; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15); padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em;">Full Stack Developer</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin: 0;">
+                                Bertanggung jawab atas arsitektur sistem, desain antarmuka pengguna, serta integrasi logika bisnis inventaris secara menyeluruh. Ahli dalam merancang alur data yang efisien dan pengalaman pengguna yang intuitif untuk sistem manajemen skala industri.
+                            </p>
+                        </div>
                     </div>
+
+                    <!-- Developer 2: Tasya Nabila -->
+                    <div style="display: flex; align-items: flex-start; gap: 16px; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.12); padding: 20px; border-radius: 20px; box-shadow: 0 8px 20px rgba(99,102,241,0.06), inset 3px 3px 0px rgba(255, 255, 255, 0.95), inset -2px -2px 0px rgba(165, 180, 252, 0.15);">
+                        <div style="flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #4f46e5); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #ffffff; font-size: 1.2rem; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.45)); border: 2px solid rgba(255,255,255,0.8);">TN</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;">
+                                <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">Tasya Nabila</div>
+                                <div style="font-size: 0.7rem; color: #6366f1; font-weight: 700; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); padding: 2px 8px; border-radius: 99px; letter-spacing: 0.04em;">24210193</div>
+                                <div style="font-size: 0.7rem; color: #818cf8; font-weight: 700; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.15); padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.04em;">Backend & Database</div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6; margin: 0;">
+                                Fokus pada pengembangan logika backend, manajemen basis data, serta implementasi sistem keamanan role-based access control (RBAC). Berpengalaman dalam membangun API yang handal dan memastikan integritas data di seluruh lapisan aplikasi.
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 

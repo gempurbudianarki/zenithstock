@@ -21,7 +21,7 @@
                 <td class="hidden sm:table-cell">
                     <span class="badge slate">{{ product.kategori }}</span>
                 </td>
-                <td class="hidden md:table-cell" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ product.lokasi_rak or '—' }}</td>
+                <td class="hidden md:table-cell" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--color-text-muted);">{{ product.lokasi_rak or '-' }}</td>
                 <td style="text-align:right;">
                     {% if product.stok == 0 %}
                     <span class="badge red"><span class="badge-dot"></span>Habis</span>
@@ -36,11 +36,11 @@
                 <td class="hidden sm:table-cell" style="text-align:right;font-family:var(--font-mono);font-size:0.8125rem;color:var(--color-text-secondary);">
                     Rp {{ "{:,.0f}".format(product.harga).replace(",", ".") }}
                 </td>
-                <td class="hidden md:table-cell" style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--zs-cyan-400);font-weight:600;">
+                <td class="hidden md:table-cell" style="text-align:right;font-family:var(--font-mono);font-size:0.8rem;color:var(--color-text-accent);font-weight:700;">
                     Rp {{ "{:,.0f}".format(product.stok * product.harga).replace(",", ".") }}
                 </td>
                 <td class="hidden lg:table-cell" style="font-size:0.8125rem;color:var(--color-text-muted);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                    {{ product.supplier.nama if product.supplier else '—' }}
+                    {{ product.supplier.nama if product.supplier else '-' }}
                 </td>
                 <td style="text-align:center;">
                     <div style="display:inline-flex;align-items:center;gap:4px;">

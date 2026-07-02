@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard Inventaris – ZenithStock Enterprise{% endblock %}
+{% block title %}Dashboard Inventaris | ZenithStock Enterprise{% endblock %}
 {% block header_title %}
-<svg style="width:20px;height:20px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<svg style="width:20px;height:20px;color:var(--color-text-accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6z" />
 </svg>
 Inventaris Barang
@@ -135,8 +135,8 @@ Inventaris Barang
                         >
                     </div>
                     <!-- Camera scan button -->
-                    <button type="button" @click="window.dispatchEvent(new Event('open-scanner'))" class="btn btn-secondary" style="padding:10px;display:inline-flex;align-items:center;justify-content:center;height:38px;width:38px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);cursor:pointer;flex-shrink:0;" title="Pindai Barcode / QR Code via Kamera">
-                        <svg style="width:18px;height:18px;color:var(--zs-cyan-400);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <button type="button" @click="window.dispatchEvent(new Event('open-scanner'))" class="btn btn-secondary" style="padding:10px;display:inline-flex;align-items:center;justify-content:center;height:38px;width:38px;cursor:pointer;flex-shrink:0;" title="Pindai Barcode / QR Code via Kamera">
+                        <svg style="width:18px;height:18px;color:var(--color-text-accent);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4v1m0 11v1m4-6h1m-11 0h1m2-4h4a2 2 0 012 2v4a2 2 0 01-2 2H9a2 2 0 01-2-2V8a2 2 0 012-2z" />
                         </svg>
                     </button>
@@ -224,8 +224,8 @@ Inventaris Barang
         <!-- Camera Viewport -->
         <div id="reader" style="width: 100%; min-height: 250px; background: #020817; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); position:relative;">
             <!-- Success Overlay Flash -->
-            <div id="scan-success-overlay" style="position:absolute;inset:0;background:rgba(34,211,238,0.25);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.15s ease;z-index:10;">
-                <div style="background:rgba(2,8,23,0.9);border:1px solid rgba(34,211,238,0.3);border-radius:99px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:var(--zs-cyan-400);box-shadow:0 0 20px rgba(34,211,238,0.3);">
+            <div id="scan-success-overlay" style="position:absolute;inset:0;background:rgba(99,102,241,0.25);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.15s ease;z-index:10;">
+                <div style="background:rgba(255,255,255,0.95);border:1px solid rgba(99,102,241,0.3);border-radius:99px;width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:var(--color-text-accent);box-shadow:0 8px 16px rgba(99,102,241,0.15);">
                     <svg style="width:28px;height:28px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                     </svg>

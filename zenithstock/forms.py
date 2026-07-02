@@ -116,6 +116,10 @@ class StockMovementForm(FlaskForm):
     ], validators=[
         InputRequired(message="Tipe transaksi wajib diisi.")
     ])
+    arah_penyesuaian = SelectField('Arah Penyesuaian', choices=[
+        ('tambah', 'Penambahan (+)'),
+        ('kurang', 'Pengurangan (-)')
+    ], default='tambah')
     jumlah = IntegerField('Jumlah / Qty', validators=[
         InputRequired(message="Jumlah mutasi wajib diisi."),
         NumberRange(min=1, message="Jumlah minimal adalah 1 unit.")
@@ -126,7 +130,7 @@ class StockMovementForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(StockMovementForm, self).__init__(*args, **kwargs)
-        products = Product.query.order_by(Product.sku).all()
+        products = Product.query.filter_by(is_deleted=False).order_by(Product.sku).all()
         self.product_id.choices = [
             (p.id, f"[{p.sku}] {p.nama_barang} (Stok saat ini: {p.stok})")
             for p in products

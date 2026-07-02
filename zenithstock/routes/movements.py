@@ -52,7 +52,7 @@ def create():
 
     product_id_param = request.args.get('product_id', type=int)
     if request.method == 'GET' and product_id_param:
-        product = Product.query.get(product_id_param)
+        product = Product.query.filter_by(id=product_id_param, is_deleted=False).first()
         if product:
             form.product_id.data = product.id
 
@@ -63,6 +63,8 @@ def create():
         keterangan = form.keterangan.data.strip()
 
         product = Product.query.get_or_404(product_id)
+        if product.is_deleted:
+            abort(404)
 
         qty_change = 0
         if tipe == 'MASUK':
@@ -77,7 +79,18 @@ def create():
                 )
                 return render_template('movements/create.html', form=form)
         elif tipe == 'PENYESUAIAN':
-            qty_change = jumlah
+            arah = form.arah_penyesuaian.data
+            if arah == 'kurang':
+                qty_change = -jumlah
+                if product.stok < jumlah:
+                    flash(
+                        f'Transaksi ditolak! Stok "{product.nama_barang}" saat ini ({product.stok} unit) '
+                        f'tidak mencukupi untuk penyesuaian pengurangan sebanyak {jumlah} unit.',
+                        'danger'
+                    )
+                    return render_template('movements/create.html', form=form)
+            else:
+                qty_change = jumlah
 
         product.stok += qty_change
 

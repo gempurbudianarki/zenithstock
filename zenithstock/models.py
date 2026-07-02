@@ -56,6 +56,7 @@ class Product(db.Model):
     harga = db.Column(db.Integer, nullable=False, default=0)
     min_stok = db.Column(db.Integer, nullable=False, default=10)
     lokasi_rak = db.Column(db.String(50))
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False, index=True)
 
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.id'), nullable=True)
 

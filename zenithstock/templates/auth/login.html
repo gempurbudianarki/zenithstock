@@ -1,6 +1,6 @@
 {% extends "auth/base_auth.html" %}
 
-{% block title %}Masuk – ZenithStock Enterprise{% endblock %}
+{% block title %}Masuk | ZenithStock Enterprise{% endblock %}
 {% block auth_subtitle %}Masuk ke sistem pengelolaan inventaris{% endblock %}
 
 {% block auth_content %}
@@ -56,21 +56,9 @@
 
     <div style="text-align:center;margin-top:20px;font-size:0.8125rem;color:var(--color-text-muted);">
         Belum memiliki akun?
-        <a href="{{ url_for('auth.register') }}" style="color:#60a5fa;font-weight:600;text-decoration:none;transition:color var(--transition-fast) ease;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#60a5fa'">Daftar sekarang</a>
+        <a href="{{ url_for('auth.register') }}" style="color:#4f46e5;font-weight:600;text-decoration:none;transition:color var(--transition-fast) ease;" onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#4f46e5'">Daftar sekarang</a>
     </div>
 </form>
-
-<!-- Default credentials hint -->
-<div style="margin-top:20px;padding:12px 14px;background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.1);border-radius:var(--radius-md);font-size:0.75rem;color:var(--color-text-muted);">
-    <div style="font-weight:700;color:var(--zs-cyan-500);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-        <svg style="width:12px;height:12px;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-        Akun Demo
-    </div>
-    <div style="display:flex;flex-direction:column;gap:3px;">
-        <span>Admin: <code style="color:var(--color-text-primary);font-family:var(--font-mono);">admin</code> / <code style="color:var(--color-text-primary);font-family:var(--font-mono);">admin123</code></span>
-        <span>Staff: <code style="color:var(--color-text-primary);font-family:var(--font-mono);">staff</code> / <code style="color:var(--color-text-primary);font-family:var(--font-mono);">staff123</code></span>
-    </div>
-</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 {% endblock %}

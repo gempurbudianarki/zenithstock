@@ -1,0 +1,29 @@
+# Environments
+.env
+.env.local
+.env.*
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.tox/
+.venv/
+venv/
+ENV/
+
+# Databases
+instance/
+*.db
+*.sqlite3
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -14,7 +14,7 @@
             <tr>
                 <td>
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0e7490,#22d3ee);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:800;color:#001a24;flex-shrink:0;{% if u.id == current_user.id %}outline:2px solid var(--zs-cyan-500);outline-offset:2px;{% endif %}">
+                        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#818cf8,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:0.875rem;font-weight:800;color:#ffffff;flex-shrink:0;{% if u.id == current_user.id %}outline:2px solid var(--color-accent);outline-offset:2px;{% endif %}">
                             {{ u.username[0]|upper }}
                         </div>
                         <div>
@@ -42,7 +42,7 @@
                     {% if u.status == 'active' %}
                     <span class="badge green"><span class="badge-dot"></span>Aktif</span>
                     {% elif u.status == 'pending' %}
-                    <span class="badge amber" style="background:rgba(245,158,11,0.06);color:#fbbf24;border:1px solid rgba(245,158,11,0.2);"><span class="badge-dot" style="background:#fbbf24;"></span>Menunggu</span>
+                    <span class="badge amber" style="background:rgba(245,158,11,0.08);color:#d97706;border:1px solid rgba(245,158,11,0.25);"><span class="badge-dot" style="background:#d97706;"></span>Menunggu</span>
                     {% else %}
                     <span class="badge red"><span class="badge-dot"></span>Non-Aktif</span>
                     {% endif %}
@@ -66,7 +66,7 @@
                               method="POST" style="display:inline;margin:0;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="action-btn {% if u.status == 'active' %}delete{% else %}edit{% endif %}"
-                                    style="color: {% if u.status == 'active' %}#f87171{% else %}#34d399{% endif %};background:transparent;border:none;"
+                                    style="color: {% if u.status == 'active' %}#ef4444{% else %}#10b981{% endif %};background:transparent;border:none;"
                                     title="Toggle Status ({{ 'Nonaktifkan Akun' if u.status == 'active' else 'Aktifkan / Setujui Akun' }})">
                                 {% if u.status == 'active' %}
                                 <svg style="width:15px;height:15px;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
